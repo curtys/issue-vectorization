@@ -1,0 +1,101 @@
+{
+    "comments": [
+        {
+            "author": "Jukka Zitting",
+            "body": "You can use InputStreams just by wrapping them into InputSources:\n\n    String repositoryHome = ...;\n    InputStream repositoryXml = ...;\n    RepositoryConfig config = RepositoryConfig.create(new InputSource(repositoryXml), repositoryHome);\n\n(The API uses InputSources as they make for better XML error messages)\n\nThe JCA case is a bit more difficult. It might make sense to allow URLs instead of just file paths as configuration file paths in RepositoryConfig.create(String,String)? Would this cover your use case?",
+            "date": "2005-10-10T05:58:16.000+0000",
+            "id": 0
+        },
+        {
+            "author": "Costin Leau",
+            "body": "Yes it would. The JCA relies on the RepositoryConfigu so it just needs some methods which accept InputSources instead of just Strings.\nAs for the InputSource why doesn't JackRabbit creates it internally ? - the client is force to have the InputSource library in the classpath just as a dependency.",
+            "date": "2005-10-10T14:58:40.000+0000",
+            "id": 1
+        },
+        {
+            "author": "Jukka Zitting",
+            "body": "org.xml.sax.InputSource is a part of Java 1.4 so no extra dependencies are required. An InputSource is created internally when RepositoryConfig is given a configuration file path, and it would certainly be possible to add a utility method that does the same for an InputStream. I'm just hesitant on extending this semi-public API without a good use case for it.\n\nExtending the RepositoryConfig.create(String,String) method to allow URLs in addition to file paths is a \"cleaner\" extension, so I'd like to do that instead if it is good enough for you. This extension would also require no changes in JCA.\n",
+            "date": "2005-10-10T17:19:35.000+0000",
+            "id": 2
+        },
+        {
+            "author": "Costin Leau",
+            "body": "You are right about the extra dependecy however considering that an InputSource is created internally by JackRabbit if a String is used I think using an InputStream is the best alternative. The configuration implementation doesn't have to treat the case of file, url or InputSource or anything like that - maybe the client is using a PipedStream. Indeed I have a hook (create the InputSource) but I think it would be easier if the would be a generic method which accepts the inputStream and the rest of the method internally delegate to it InputStream is the lowest common dominator and there is always a situation where the client doesn't use URLs or File.\nMy main motivation behind the issue is the update of the JCA contribution so if I can hook an input stream to it (no matter if I have to create an InputSource or not).\n",
+            "date": "2005-10-10T17:51:00.000+0000",
+            "id": 3
+        },
+        {
+            "author": "Tobias Bocanegra",
+            "body": "when dealing with xml configuration, an InputSource signature should be provided. the InputSource also hold information about the SystemId or PublishId. this information is used to resolve external entities, or DTDs.",
+            "date": "2005-10-10T21:43:50.000+0000",
+            "id": 4
+        },
+        {
+            "author": "Costin Leau",
+            "body": "But you can create an InputSource based on an InputStream (i.e. InputSource xmlSource = new InputSource(myInputStream); ). Am I missing something here?",
+            "date": "2005-10-10T22:18:19.000+0000",
+            "id": 5
+        },
+        {
+            "author": "Tobias Bocanegra",
+            "body": "sure you can. but then you loose the ability to resolve relative entities. currently, the config does not make use of those, so this is no problem.\n\nmy point is the following:\n- adding a new signature that takes an inputstream would just be convenience. the overhead in typing 'new InputSource(in)' is very low\n- only having the InputStream signature is not acceptable, since the XML parsing could need the information stored in the InputSource.\n",
+            "date": "2005-10-10T22:32:02.000+0000",
+            "id": 6
+        },
+        {
+            "author": "Jukka Zitting",
+            "body": "Tobias is right, InputSource is the correct format to use.\n\nI added (r312816)  the convenience methods create(URI, String) and create(InputStream, String). This should cover all use cases.",
+            "date": "2005-10-11T15:19:42.000+0000",
+            "id": 7
+        },
+        {
+            "author": "Costin Leau",
+            "body": "Can you please, also update the JCA connector configuration methods?",
+            "date": "2005-10-11T16:33:49.000+0000",
+            "id": 8
+        },
+        {
+            "author": "Jukka Zitting",
+            "body": "Costin Leau wrote:\n> Can you please, also update the JCA connector configuration methods?\n\nAh, sorry. Reopened the issue and assigned to Dominique.\n\nDominique, could you take a look at this? The current JCA configuration is based on the repository configuration file name and I'm not sure about all the implications of changing that.",
+            "date": "2005-10-11T16:56:15.000+0000",
+            "id": 9
+        },
+        {
+            "author": "Costin Leau",
+            "body": "It's quite easy - the JCA connector creates the repository and it's configuration from Strings - the update should add the rest of the methods from repository config ( create(URI, String) and create(InputStream, String)). That's it.",
+            "date": "2005-10-11T17:12:21.000+0000",
+            "id": 10
+        },
+        {
+            "author": "Jukka Zitting",
+            "body": "I'm just curious about how to handle the property declarations in ra.xml, and more generally whether it even makes sense to allow InputStreams as declarative connector properties.",
+            "date": "2005-10-16T22:23:11.000+0000",
+            "id": 11
+        },
+        {
+            "author": "Dominique Pfister",
+            "body": "According to the J2EE Connector Architecture Specification 1.0, custom properties for the managed connection factory class must be of one of the following types:\n\n- java.lang.Boolean\n- java.lang.String\n- java.lang.Integer,\n- java.lang.Double\n- java.lang.Byte\n- java.lang.Short,\n- java.lang.Long\n- java.lang.Float\n- java.lang.Character\n\nAdding URI and/or InputStream would then obviously be in violation to this. It would, of course, make sense to add a property of type String named URI, that would internally be converted to a URI before creating the RepositoryConfig object, but what about InputStream?",
+            "date": "2005-11-01T01:24:33.000+0000",
+            "id": 12
+        },
+        {
+            "author": "Jukka Zitting",
+            "body": "Resolving this issue as Fixed, even though the JCA connector isn't changed. As commented by Dominique, the JCA spec doesn't allow for InputStream configuration so it doesn't make sense to implement that in the connector.",
+            "date": "2006-09-05T23:09:48.000+0000",
+            "id": 13
+        }
+    ],
+    "component": "config",
+    "description": "RepositoryConfig should be possible to create based on InputStreams (in case of URLs) ; right now it's possible only using String and InputSource. Please update also the JCA connector. ",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "JCR-248",
+    "issuetypeClassified": "RFE",
+    "issuetypeTracker": "IMPROVEMENT",
+    "priority": "Minor",
+    "product": "JACKRABBIT",
+    "project": "JACKRABBIT",
+    "summary": "create configuration on InputStream",
+    "systemSpecification": false,
+    "version": ""
+}

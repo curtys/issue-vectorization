@@ -1,0 +1,131 @@
+{
+    "comments": [
+        {
+            "author": null,
+            "body": "I can reproduce it. It doesn't happen with non-JSPs, such as images, so it\nshouldn't be a cache bug.\nBTW, the (small) delay is there because there's a cache.",
+            "date": "20030115T16:54:40",
+            "id": 0
+        },
+        {
+            "author": null,
+            "body": "FWIW, this problem does not occur with tomcat-4.0.6. The problem is serious\nenough in our context that we have been forced to downgrade.",
+            "date": "20030130T20:10:44",
+            "id": 1
+        },
+        {
+            "author": null,
+            "body": "We're seeing it too. Very nasty.",
+            "date": "20030711T14:40:23",
+            "id": 2
+        },
+        {
+            "author": null,
+            "body": "I have a working patch for this bug; I'd appreciate help/advice from anyone \nmore familiar with creating and submitting patches to the Tomcat team.",
+            "date": "20030711T17:36:41",
+            "id": 3
+        },
+        {
+            "author": null,
+            "body": "Any word on this bug? Very surprised to see the 4.0.x series disappear from the\njakarta mirrors with serious bugs like this outstanding in the 4.1 branch.",
+            "date": "20030915T16:19:32",
+            "id": 4
+        },
+        {
+            "author": null,
+            "body": "What I wrote (patch against 4.1.24 source archive) never got in. \n\nI was building a patch file; as a sanity check, I had checked out the public CVS\ncode labeled \"TOMCAT_4_1_24\", and I saw that it didn't match their \"4.1.24\"\nsource archives. When I asked about this, Remy basically told me \"learn CVS\",\nand that was the only response I got. \n\nI did notice that the dev code in CVS had progressed pretty far from 4.1.24\nalready at the time, and I recall seeing some significant changes in and around\nthe relevant code... I guessed that this bug had already been fixed, and just\nforgotten in the DB. \n\nDoes this still happen in 4.1.27? ",
+            "date": "20030915T22:41:07",
+            "id": 5
+        },
+        {
+            "author": null,
+            "body": "I have verified that it is still a bug in 4.1.29. David, would it be possible\nfor you to mail me a copy of your patch?",
+            "date": "20031104T18:19:12",
+            "id": 6
+        },
+        {
+            "author": null,
+            "body": "If you have a patch, preferably against 5.0.19, please post it so we can \nevaluate how risky it is.",
+            "date": "20040304T13:53:08",
+            "id": 7
+        },
+        {
+            "author": null,
+            "body": "Simply compare JspRuntimeContext.checkCompile(), this calls \nctxt.incrementRemoved() if a FileNotFoundException occur. JspServletWrapper \nonly set a 404 if a FileNotFoundException occur and finish. \n \nCode from JspRuntineContext: \n            synchronized(jsw) { \n                try { \n                    ctxt.compile(); \n                } catch (FileNotFoundException ex) { \n                    ctxt.incrementRemoved(); \n                } catch (Throwable t) { \n                    jsw.getServletContext().log(\"Background compile failed\", \n                                                t); \n                } \n            } \n \nCode from JspServletWrapper: \n \n       } catch (FileNotFoundException ex) { \n            String includeRequestUri = (String) \n                request.getAttribute(\"javax.servlet.include.request_uri\"); \n            if (includeRequestUri != null) { \n                // This file was included. Throw an exception as \n                // a response.sendError() will be ignored by the \n                // servlet engine. \n                throw new ServletException(ex); \n            } else { \n                try { \n                    response.sendError(HttpServletResponse.SC_NOT_FOUND, \n                                      ex.getMessage()); \n                } catch (IllegalStateException ise) { \n                    log.error(Localizer.getMessage(\"jsp.error.file.not.found\", \n                                                   ex.getMessage()), \n                              ex); \n                } \n \n \nadd a simple ctxt.incrementRemoved in catch block and test case works. ",
+            "date": "20040305T13:26:17",
+            "id": 8
+        },
+        {
+            "author": null,
+            "body": "Another solution : in JspServletWrapper, line 343, before sending\nHttpServletResponse.SC_NOT_FOUND, remove wrapper from collection of previously\ncreated wrapper : \n\nCode from JspServletWrapper: \n\n       } catch (FileNotFoundException ex) { \n            String includeRequestUri = (String) \n                request.getAttribute(\"javax.servlet.include.request_uri\"); \n            if (includeRequestUri != null) { \n                // This file was included. Throw an exception as \n                // a response.sendError() will be ignored by the \n                // servlet engine. \n                throw new ServletException(ex); \n            } else { \n                try { \n                    // BELOW 1 LINE PROPOSED FOR THIS BUG\n                    ctxt.getRuntimeContext().removeWrapper(jspUri);\n                    response.sendError(HttpServletResponse.SC_NOT_FOUND, \n                                      ex.getMessage()); \n                } catch (IllegalStateException ise) { \n                    log.error(Localizer.getMessage(\"jsp.error.file.not.found\", \n                                                   ex.getMessage()), \n                              ex); \n                } ",
+            "date": "20040305T13:39:02",
+            "id": 9
+        },
+        {
+            "author": null,
+            "body": "using incrementRemoved() is cleaner, it removes wrapper and java-/class-file. \n \nCode from JspCompilationContext: \n \n    // ==================== Removal ==================== \n \n    public void incrementRemoved() { \n        if (removed > 1) { \n            jspCompiler.removeGeneratedFiles(); \n            if( rctxt != null ) \n                rctxt.removeWrapper(jspUri); \n        } \n        removed++; \n    } \n ",
+            "date": "20040305T13:44:33",
+            "id": 10
+        },
+        {
+            "author": null,
+            "body": "OK, I agree.\n\nWhat's happen now? I suppose this patch must be validated and voted by Tomcat\ncommiters.",
+            "date": "20040305T13:50:37",
+            "id": 11
+        },
+        {
+            "author": null,
+            "body": "Example for fixed code \n \nJspServletWrapper: \n       } catch (FileNotFoundException ex) {  \n            String includeRequestUri = (String)  \n                request.getAttribute(\"javax.servlet.include.request_uri\");  \n            ctxt.incrementRemoved() \n            if (includeRequestUri != null) {  \n                // This file was included. Throw an exception as  \n                // a response.sendError() will be ignored by the  \n                // servlet engine.  \n                throw new ServletException(ex);  \n            } else {  \n                try {  \n                    response.sendError(HttpServletResponse.SC_NOT_FOUND,  \n                                      ex.getMessage());  \n                } catch (IllegalStateException ise) {  \n                    log.error(Localizer.getMessage(\"jsp.error.file.not.found\",  \n                                                   ex.getMessage()),  \n                              ex);  \n                }  \n  ",
+            "date": "20040305T13:56:28",
+            "id": 12
+        },
+        {
+            "author": null,
+            "body": "oh, you reminder JspServletWrapper/JspCompilationContext in your reminder, \nread the discussion on tomcat-user currently. \n \ni agree with Q. Bordeaux. \n \nsome live-enviroment requires jasper background compilation or development \nenabled. \nsome not, use precompile instead. \n ",
+            "date": "20040305T14:19:43",
+            "id": 13
+        },
+        {
+            "author": null,
+            "body": "Created attachment 10692\npoproposed patch",
+            "date": "20040307T08:56:37",
+            "id": 14
+        },
+        {
+            "author": null,
+            "body": "Patch applied.  Thanks.",
+            "date": "20040309T00:48:04",
+            "id": 15
+        },
+        {
+            "author": null,
+            "body": "Does this patch is applied to both Tomcat 5.x and Tomcat 4.1.x or only to Tomcat\n5.x?",
+            "date": "20040309T13:58:05",
+            "id": 16
+        },
+        {
+            "author": null,
+            "body": "I just applied the patch to 4.1.x also.",
+            "date": "20040309T17:55:18",
+            "id": 17
+        },
+        {
+            "author": null,
+            "body": "*** Bug 35650 has been marked as a duplicate of this bug. ***",
+            "date": "20050708T00:07:11",
+            "id": 18
+        }
+    ],
+    "component": "Jasper",
+    "description": "Hi guys. I've got what appears to be a bona fide error in tomcat's jsp servlet\nor one of its friends. The steps to reproduce the problem are:\n\n1. start tomcat-4.1.18 with a webapp containing a foo.jsp page\n2. hit the foo.jsp url and see the page\n3. remove foo.jsp from the webapp\n4. reload the foo.jsp url until you finally get a 404 (why does this take\nseveral tries?)\n5. replace the foo.jsp file in the webapp\n6. note that hitting the foo.jsp url will forever give you a 404 until you\nrestart tomcat",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "16113",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "P3 normal",
+    "product": "Tomcat 5",
+    "project": "TOMCAT",
+    "summary": "removing then replacing a jsp page continues to give a 404",
+    "systemSpecification": false,
+    "version": "5.0.19"
+}

@@ -1,0 +1,107 @@
+{
+    "comments": [
+        {
+            "author": "user@apochta.com",
+            "body": "Reassign to Roger",
+            "date": "20030126T15:25:00",
+            "id": 0
+        },
+        {
+            "author": "user@apochta.com",
+            "body": "Although the Ecma standard does not allow standalong {, but SM and js in MSIE\nallows it.",
+            "date": "20030126T15:40:25",
+            "id": 1
+        },
+        {
+            "author": "rogerl@formerly-netscape.com.tld",
+            "body": "Sigh. Once the mega-fix for 85721 goes in, SM will fail on this, too. ECMA\nclearly disallows this, but backwards and MSIE compatibility arguments are stronger.\n\nFix checked in.",
+            "date": "20030127T21:13:41",
+            "id": 2
+        },
+        {
+            "author": "rogerl@formerly-netscape.com.tld",
+            "body": "OK, double-sigh. Now regress-188206 will fail because we explicitly included '{'\nas a bad thing resulting from that bug report (bug 188206). Looking for\nsuggestions, back out this fix and stay with ECMA, or officially support '{' and\nchange the test ?",
+            "date": "20030127T23:22:13",
+            "id": 3
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "FWIW:\n\nThe test js1_2/Objects/toString-001.js uses the regexp in question\nto check the output of the Object.prototype.toString() function.\n\nSuch output is expected to begin and end with a curly bracket.\nThis is the regexp the test uses to check for that:\n\nfunction checkObjectToString(s, a) {\n  var m = /^{(.*)\\}$/(s);\n  if (!m)\n    return false;  // should begin and end with curly brackets\n\n         etc.\n         etc.\n\n\nNotice that the right brace was escaped, but the left one not.\nIt looks simply like an oversight when the test was written.\n\nAs Roger indicates, the ECMA-262 Edition 3 Final spec is quite clear\nthat neither '{' nor '}' may appear in a regexp literal unescaped.\n\n\nHowever, note that Perl seems to allow '{' and '}' to appear unescaped.\nNote, I'm switching between 'p' and 'P' as a sanity check:\n\nperl -e 'if (\"{p:1}\" =~ /{p/) {print(\"MATCH!\");} else {print(\"NO MATCH\");}'\nMATCH!\nperl -e 'if (\"{p:1}\" =~ /{P/) {print(\"MATCH!\");} else {print(\"NO MATCH\");}'\nNO MATCH\n\nperl -e 'if (\"{p:1}\" =~ /{p:1}/) {print(\"MATCH!\");} else {print(\"NO MATCH\");}'\nMATCH!\nperl -e 'if (\"{p:1}\" =~ /{P:1}/) {print(\"MATCH!\");} else {print(\"NO MATCH\");}'\nNO MATCH\n\n\nNow, let's try the specific regexp above:\n$ perl -e 'if (\"{p:1}\" =~ /^{(.*)\\}$/) {print(\"MATCH!\");}'\nMATCH!\n\nHere, without the escape of '}':\n$ perl -e 'if (\"{p:1}\" =~ /^{(.*)}$/) {print(\"MATCH!\");}'\nMATCH!\n\n\n\nFurthermore, all three of these browsers currently allow it:\nMoz/N6/N7, IE6, and N4.7. I will attach an HTML testcase below.\n\nNote we had a similar situation in bug 141078,\n\"Should JS support octal escape sequences in regexps?\"\n\nHere was Brendan's take on that issue: bug 141078 comment 2.",
+            "date": "20030128T01:05:10",
+            "id": 4
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "Created attachment 112826\nHTML testcase",
+            "date": "20030128T01:09:44",
+            "id": 5
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "In any case, I've gone ahead and added the missing escape to the testcase.\nEven though it's \"historic\" (i.e. lies in the js1_2 directory), I couldn't\nfind any deliberate reason via bonsai for having the right brace escaped\nbut the left one not:\n\nhttp://bonsai.mozilla.org/cvslog.cgi?\nfile=mozilla/js/tests/js1_2/Objects/toString-001.js",
+            "date": "20030128T01:21:31",
+            "id": 6
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "I have modified mozilla/js/tests/ecma_3/RegExp/regress-188206.js\nto follow Perl custom regarding braces in regexp patterns.\n\nFor reference, from the \"perlre\" doc on the Web:\n\n----\nThe following standard quantifiers are recognized:\n\n   *      Match 0 or more times\n   +      Match 1 or more times\n   ?      Match 1 or 0 times\n   {n}    Match exactly n times\n   {n,}   Match at least n times\n   {n,m}  Match at least n but not more than m times\n\nIf a curly bracket occurs in any other context, it is treated\nas a regular character.\n----\n\n\nThe testcase now tests that braces may appear unescaped in regexp\npatterns, even they are not part of a quantifier. This will enforce \nbackward compatibility, and compatibility with IE.",
+            "date": "20030130T02:50:37",
+            "id": 7
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "Created attachment 113066\nHTML testcase #2  (for Moz and IE only; NN4.x won't accept try...catch)",
+            "date": "20030130T03:03:12",
+            "id": 8
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "Have to reopen this bug. With the new sections, testcase\necma_3/RegExp/regress-188206.js is failing in Rhino.\n\nThese sections use braces, unescaped, as literal characters\nin regexp patterns. Even though this is ECMA-incorrect, we\nexpect no errors, re the compatibility issues raised above -",
+            "date": "20030130T19:43:36",
+            "id": 9
+        },
+        {
+            "author": "rogerl@formerly-netscape.com.tld",
+            "body": "Fixed in patch for bug 85721",
+            "date": "20030203T21:27:50",
+            "id": 10
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "Confirming - with the latest patch for bug 85721, the testcase\n\n      mozilla/js/tests/ecma_3/RegExp/regress-188206.js\n\npasses in SpiderMonkey; still failing in Rhino.",
+            "date": "20030203T22:22:55",
+            "id": 11
+        },
+        {
+            "author": "rogerl33@aol.com",
+            "body": "Created attachment 128343\nCleaned up weird quantifier handling",
+            "date": "20030723T17:52:35",
+            "id": 12
+        },
+        {
+            "author": "igor@mir2.org",
+            "body": "Fixed in bug 225926",
+            "date": "20031207T15:38:53",
+            "id": 13
+        },
+        {
+            "author": "igor@mir2.org",
+            "body": "Trageting as resolved against 1.5R5",
+            "date": "20040213T11:33:16",
+            "id": 14
+        }
+    ],
+    "component": "Core",
+    "description": "User-Agent:       Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003\nBuild Identifier: Rhino  2003-01-25 CVS\n\nAlready applied fix for the bug 189898 broke js1_2/Objects/toString-001.js test\ncase which now fails with:\n\n*-* Testcase js1_2/Objects/toString-001.js failed:\nExpected exit code 0, got 3\nTestcase terminated with signal 0\nComplete testcase output was:\njs: uncaught JavaScript exception: SyntaxError: Invalid quantifier {\n\n\nThe test case fails when it declares the following regular expression:\n\n/^{(.*)\\}$/\n\n\n\nReproducible: Always\n\nSteps to Reproduce:\n1. Run Rhino shell\n2. Enter there the foolowing regular expression:\n/{\\}/\nActual Results:  \njs: uncaught JavaScript exception: SyntaxError: Invalid quantifier {\n\n\nExpected Results:  \n/{\\}/",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "190685",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "-- normal",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "Unexpected SyntaxError for /^{(.*)\\}$/",
+    "systemSpecification": true,
+    "version": "other"
+}
