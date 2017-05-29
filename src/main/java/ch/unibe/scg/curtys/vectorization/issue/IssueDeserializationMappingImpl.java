@@ -11,6 +11,7 @@ public class IssueDeserializationMappingImpl
 		implements IssueDeserializationMapping {
 
 	private String project_id;
+	/* name of the reporter */
 	private String name;
 	private String bug_id;
 	private String bug_severity;

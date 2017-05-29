@@ -21,4 +21,11 @@ class Vector {
 		return elements;
 	}
 
+	public String getId() {
+		return id;
+	}
+
+	public String getProject() {
+		return project;
+	}
 }

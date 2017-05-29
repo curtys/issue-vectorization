@@ -138,6 +138,12 @@ public class VectorizationEngine {
 		finalWriter.close();
 	}
 
+	public Vector vectorize(Issue issue) {
+		if (!isPreprocessed)
+			prepareIssues();
+		return createVector(issue);
+	}
+
 	public List<Vector> vectorize() {
 		if (!isPreprocessed)
 			prepareIssues();
@@ -224,7 +230,7 @@ public class VectorizationEngine {
 		return Labels.validateLabels(labels);
 	}
 
-	private static class VectorizationEngineBuilder {
+	public static class VectorizationEngineBuilder {
 		private final VectorizationEngine engine = new VectorizationEngine();
 
 		public VectorizationEngineBuilder verbose(boolean verbose) {
