@@ -90,6 +90,6 @@
     "product": "HTTPCLIENT",
     "project": "HTTPCLIENT",
     "summary": "Digest auth uses wrong uri in proxy authentication",
-    "systemSpecification": true,
+    "systemSpecification": "Linux\nPC",
     "version": "3.0 RC1"
 }

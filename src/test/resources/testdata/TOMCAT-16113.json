@@ -126,6 +126,6 @@
     "product": "Tomcat 5",
     "project": "TOMCAT",
     "summary": "removing then replacing a jsp page continues to give a 404",
-    "systemSpecification": false,
+    "systemSpecification": null,
     "version": "5.0.19"
 }

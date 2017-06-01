@@ -102,6 +102,6 @@
     "product": "Rhino",
     "project": "RHINO",
     "summary": "Unexpected SyntaxError for /^{(.*)\\}$/",
-    "systemSpecification": true,
+    "systemSpecification": "linux x86",
     "version": "other"
 }

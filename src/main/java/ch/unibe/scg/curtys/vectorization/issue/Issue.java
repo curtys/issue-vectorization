@@ -9,7 +9,7 @@ public class Issue {
 
 	private boolean hasPatch;
 	private boolean hasScreenshot;
-	private boolean systemSpecification;
+	private String systemSpecification;
 	private String id;
 	private String project;
 	private String summary;
@@ -113,11 +113,11 @@ public class Issue {
 		return summary+"\n"+description+"\n"+comments;
 	}
 
-	public boolean hasSystemspecification() {
+	public String getSystemspecification() {
 		return systemSpecification;
 	}
 
-	public void setSystemSpecification(boolean systemSpecification) {
+	public void setSystemSpecification(String systemSpecification) {
 		this.systemSpecification = systemSpecification;
 	}
 
@@ -203,7 +203,7 @@ public class Issue {
 	@Override public int hashCode() {
 		int result = (hasPatch ? 1 : 0);
 		result = 31 * result + (hasScreenshot ? 1 : 0);
-		result = 31 * result + (systemSpecification ? 1 : 0);
+		result = 31 * result + (systemSpecification != null ? systemSpecification.hashCode() : 0);
 		result = 31 * result + (id != null ? id.hashCode() : 0);
 		result = 31 * result + (project != null ? project.hashCode() : 0);
 		result = 31 * result + (summary != null ? summary.hashCode() : 0);

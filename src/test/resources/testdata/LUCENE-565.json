@@ -366,6 +366,6 @@
     "product": "LUCENE",
     "project": "LUCENE",
     "summary": "Supporting deleteDocuments in IndexWriter (Code and Performance Results Provided)",
-    "systemSpecification": true,
+    "systemSpecification": null,
     "version": ""
 }

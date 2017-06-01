@@ -96,6 +96,6 @@
     "product": "JACKRABBIT",
     "project": "JACKRABBIT",
     "summary": "create configuration on InputStream",
-    "systemSpecification": false,
+    "systemSpecification": "",
     "version": ""
 }

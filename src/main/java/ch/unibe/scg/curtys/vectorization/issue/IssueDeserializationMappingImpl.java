@@ -28,7 +28,7 @@ public class IssueDeserializationMappingImpl
 		Issue issue = new Issue();
 		issue.setComponent(component_name);
 		issue.setId(bug_id);
-		issue.setSystemSpecification(!StringUtils.isBlank(op_sys));
+		issue.setSystemSpecification(op_sys);
 		issue.setPriority(bug_severity);
 		issue.setProduct(product_name);
 		issue.setSummary(short_desc);
