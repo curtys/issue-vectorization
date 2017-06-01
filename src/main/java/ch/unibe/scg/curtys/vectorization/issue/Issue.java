@@ -104,10 +104,12 @@ public class Issue {
 
 	public String textRepresentation() {
 		String comments = "";
-		for(Comment comment : getComments()) {
-			comments += comment.getBody() + "\n";
+		if (getComments() != null) {
+			for (Comment comment : getComments()) {
+				comments += comment.getBody() + "\n";
+			}
+			comments.trim();
 		}
-		comments.trim();
 		return summary+"\n"+description+"\n"+comments;
 	}
 

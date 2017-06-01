@@ -1,0 +1,14 @@
+{
+  "project_id" : 2,
+  "name" : "eclipse-developer",
+  "bug_id" : 5575,
+  "vote" : 3,
+  "bug_severity" : "enhancement",
+  "priority" : "P4",
+  "product_name" : "Platform",
+  "component_name" : "UI",
+  "op_sys" : "Windows 2000",
+  "creation_ts" : 1005040506000,
+  "short_desc" : "[Perspectives] Focus on... should change window title",
+  "thetext" : "Build 20011101\n\nIn the type hierarchy perspective, the title of the window is the name of the \ntype you opened the hierarchy on (which is good). But when you use Focus on... \nor Focus on X, the title is not changed."
+}

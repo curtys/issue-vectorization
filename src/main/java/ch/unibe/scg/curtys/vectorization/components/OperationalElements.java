@@ -32,10 +32,10 @@ public class OperationalElements extends VectorComponent {
 	}
 	private static class ClassNameFilter implements TextFilter {
 		@Override public boolean filter(String text) {
-			Pattern pattern = Pattern.compile("(\\p{Upper}[a-z]*)+");
+			Pattern pattern = Pattern.compile("[A-Z]([A-Z0-9]*[a-z][a-z0-9]*[A-Z]|[a-z0-9]*[A-Z][A-Z0-9]*[a-z])[A-Za-z0-9]*");
 			Matcher m = pattern.matcher(text);
 			while(m.find()) {
-				if(m.group(1).contains("Exception")) continue;
+				if(m.group().contains("Exception")) continue;
 				return true;
 			}
 			return false;

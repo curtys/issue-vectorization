@@ -62,6 +62,18 @@ public class OperationalElementsTest {
 
 	private String text11 = "method ()";
 
+	private String text12 = "It would be nice to have functionality  "
+			+ "right-click on class for\nwhich a JUnit test was previously generated "
+			+ "and have menu item \"Update tests\". \nThis functionality would be "
+			+ "similar to the functionality currently provided when\nuser right-clicks "
+			+ "on Source->Implement/override methods.  The presented dialog\nwould "
+			+ "allow user to select methods (added since the last time tests were\ngenerated) "
+			+ "for which to generate test skeletons.\n\nThanks,\nRoman.";
+
+	private String text13 = "to (for example)";
+
+	private String text14 = "JUnit";
+
 	private OperationalElements vecElement = new OperationalElements();
 
 	@Test
@@ -77,6 +89,9 @@ public class OperationalElementsTest {
 		assertTrue(vecElement.matchesFilter(text9));
 		assertFalse(vecElement.matchesFilter(text10));
 		assertTrue(vecElement.matchesFilter(text11));
+//		assertFalse(vecElement.matchesFilter(text12));
+//		assertFalse(vecElement.matchesFilter(text13));
+		assertTrue(vecElement.matchesFilter(text14));
 	}
 
 }

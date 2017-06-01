@@ -2,9 +2,8 @@ package ch.unibe.scg.curtys.vectorization;
 
 import ch.unibe.scg.curtys.vectorization.components.*;
 import ch.unibe.scg.curtys.vectorization.io.CSVWriter;
-import ch.unibe.scg.curtys.vectorization.io.JSONReader;
+import ch.unibe.scg.curtys.vectorization.io.JsonIO;
 import ch.unibe.scg.curtys.vectorization.issue.Issue;
-import ch.unibe.scg.curtys.vectorization.Vector;
 import ch.unibe.scg.curtys.vectorization.preprocessors.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,7 @@ public class VectorizationEngine {
 		// 4
 		KeywordVectorComponent enhanceKeywords = new KeywordVectorComponent(
 				"improvement", "improve", "optimization", "optimize", "performance",
-				"overhead", "logging", "speedup");
+				"overhead", "logging", "speedup", "easier");
 		// 5
 		KeywordVectorComponent requestKeywords = new KeywordVectorComponent(
 				"feature", "features", "support", "implement");
@@ -291,7 +290,7 @@ public class VectorizationEngine {
 
 		// Read issues
 		log.info("Reading JSON files...");
-		List<Issue> issues = JSONReader.readJsons(inPath);
+		List<Issue> issues = JsonIO.readJsons(inPath);
 
 		// Configure engine
 		log.info("Setting up engine...");

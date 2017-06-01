@@ -3,7 +3,7 @@ package ch.unibe.scg.curtys.vectorization;
 /**
  * Created by scurty.
  */
-class Vector {
+public class Vector {
 
 	final int[] elements;
 	private final String project;

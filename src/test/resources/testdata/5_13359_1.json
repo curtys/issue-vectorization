@@ -1,0 +1,14 @@
+{
+  "project_id" : 5,
+  "name" : "apache-reporter",
+  "bug_id" : 13359,
+  "vote" : 1,
+  "bug_severity" : null,
+  "priority" : "N/A",
+  "product_name" : "Ant",
+  "component_name" : "Core tasks",
+  "op_sys" : "Operating System: Other<br/>\nPlatform: Other",
+  "creation_ts" : 1015461772000,
+  "short_desc" : "[JAMES-27] Using wrong server name in SMTP HELO command",
+  "thetext" : "When James initates an SMTP connection to a remote server, it seems to ignore<br/>\nthe servername tag and use the computers hostname.<br/>\n<br/>\nHowever, when JAMES receives an SMTP connetion, it does appear to use the<br/>\nservername tag ID."
+}

@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Created by scurty
  */
-public class JSONReader {
+public class JsonIO {
 
 	public static List<Issue> readJsons(URI path) throws IOException {
 		List<Issue> issues = new ArrayList<>();
@@ -59,7 +59,7 @@ public class JSONReader {
 		return mapper.readValue(path.toFile(), Issue.class);
 	}
 
-	private static <T extends IssueDeserializationMapping> Issue mapIssue(Path path, Class<T> mapping) throws IOException {
+	public static <T extends IssueDeserializationMapping> Issue mapIssue(Path path, Class<T> mapping) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.readValue(path.toFile(), mapping).toIssue();
 	}

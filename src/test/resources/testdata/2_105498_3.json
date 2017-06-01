@@ -1,0 +1,14 @@
+{
+  "project_id" : 2,
+  "name" : "eclipse-developer",
+  "bug_id" : 105498,
+  "vote" : 3,
+  "bug_severity" : "enhancement",
+  "priority" : "P3",
+  "product_name" : "JDT",
+  "component_name" : "UI",
+  "op_sys" : "Windows XP",
+  "creation_ts" : 1122553061000,
+  "short_desc" : "[JUnit] Make updating TestCases easier",
+  "thetext" : "It would be nice to have functionality to (for example) right-click on class for\nwhich a JUnit test was previously generated and have menu item \"Update tests\". \nThis functionality would be similar to the functionality currently provided when\nuser right-clicks on Source->Implement/override methods.  The presented dialog\nwould allow user to select methods (added since the last time tests were\ngenerated) for which to generate test skeletons.\n\nThanks,\nRoman."
+}

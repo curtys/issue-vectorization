@@ -1,14 +1,18 @@
 package ch.unibe.scg.curtys.vectorization;
 
 
-import ch.unibe.scg.curtys.vectorization.io.JSONReader;
+import ch.unibe.scg.curtys.vectorization.io.JsonIO;
 import ch.unibe.scg.curtys.vectorization.issue.Issue;
+import ch.unibe.scg.curtys.vectorization.issue.IssueDeserializationMappingImpl;
+import junit.framework.AssertionFailedError;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 
@@ -18,6 +22,8 @@ import static org.junit.Assert.assertArrayEquals;
 public class VectorizationTest {
 
 	private final VectorizationEngine engine = new VectorizationEngine();
+	private static final double MIN_PRECISION = 0.9;
+	private final static boolean VERBOSE = true;
 
 	@Before
 	public void setUp() {
@@ -31,7 +37,7 @@ public class VectorizationTest {
 	@Test
 	public void testVectorization1() throws Exception {
 		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/HTTPCLIENT-506.json").getPath());
-		Issue issue = JSONReader.mapIssue(path);
+		Issue issue = JsonIO.mapIssue(path);
 
 		int[] expected = {0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1};
 		Vector vec = engine.createVector(issue);
@@ -45,7 +51,7 @@ public class VectorizationTest {
 	@Test
 	public void testVectorization2() throws Exception {
 		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/JCR-248.json").getPath());
-		Issue issue = JSONReader.mapIssue(path);
+		Issue issue = JsonIO.mapIssue(path);
 
 		int[] expected = {0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1};
 		Vector vec = engine.createVector(issue);
@@ -59,7 +65,7 @@ public class VectorizationTest {
 	@Test
 	public void testVectorization3() throws Exception {
 		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/LUCENE-565.json").getPath());
-		Issue issue = JSONReader.mapIssue(path);
+		Issue issue = JsonIO.mapIssue(path);
 
 		int[] expected = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1};
 		Vector vec = engine.createVector(issue);
@@ -73,7 +79,7 @@ public class VectorizationTest {
 	@Test
 	public void testVectorization4() throws Exception {
 		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/RHINO-190685.json").getPath());
-		Issue issue = JSONReader.mapIssue(path);
+		Issue issue = JsonIO.mapIssue(path);
 
 		int[] expected = createExpected(1, 1, 1,
 				1, 0, 1, 0,
@@ -92,7 +98,7 @@ public class VectorizationTest {
 	@Test
 	public void testVectorization5() throws Exception {
 		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/TOMCAT-16113.json").getPath());
-		Issue issue = JSONReader.mapIssue(path);
+		Issue issue = JsonIO.mapIssue(path);
 
 		int[] expected = createExpected(1, 1, 1,
 				0, 0, 0, 1,
@@ -105,8 +111,123 @@ public class VectorizationTest {
 		assertArrayEquals(expected, vec.elements);
 	}
 
+	/**
+	 * Issue in question: 105498 from eclipse project
+	 */
+	@Test
+	public void testVectorization6() throws Exception {
+		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/2_105498_3.json").getPath());
+		Issue issue = JsonIO.mapIssue(path, IssueDeserializationMappingImpl.class);
+
+		int[] expected = createExpected(0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 1);
+		Vector vec = engine.createVector(issue);
+		print(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
+	}
+
+	/**
+	 * Issue in question: 30168 from firefox project
+	 */
+	@Test
+	public void testVectorization7() throws Exception {
+		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/0_30168_1.json").getPath());
+		Issue issue = JsonIO.mapIssue(path, IssueDeserializationMappingImpl.class);
+
+		int[] expected = createExpected(0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 1,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 1);
+		Vector vec = engine.createVector(issue);
+		print(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
+	}
+
+	/**
+	 * Issue in question: 5575 from eclipse project
+	 */
+	@Test
+	public void testVectorization8() throws Exception {
+		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/2_5575_3.json").getPath());
+		Issue issue = JsonIO.mapIssue(path, IssueDeserializationMappingImpl.class);
+
+		int[] expected = createExpected(0, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 1);
+		Vector vec = engine.createVector(issue);
+		print(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
+	}
+
+	/**
+	 * Issue in question: https://bugs.eclipse.org/bugs/show_bug.cgi?id=29802
+	 */
+	@Test
+	public void testVectorization9() throws Exception {
+		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/3_29802_1.json").getPath());
+		Issue issue = JsonIO.mapIssue(path, IssueDeserializationMappingImpl.class);
+
+		int[] expected = createExpected(0, 1, 1,
+				0, 0, 0, 1,
+				0, 1, 0, 1,
+				0, 1, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 1);
+		Vector vec = engine.createVector(issue);
+		print(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
+	}
+
+	/**
+	 * Issue in question: https://bugs.eclipse.org/bugs/show_bug.cgi?id=152222
+	 */
+	@Test
+	public void testVectorization10() throws Exception {
+		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/3_152222_2.json").getPath());
+		Issue issue = JsonIO.mapIssue(path, IssueDeserializationMappingImpl.class);
+
+		int[] expected = createExpected(0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 1);
+		Vector vec = engine.createVector(issue);
+		print(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
+	}
+
+	/**
+	 * Issue in question: ???
+	 */
+	@Test
+	public void testVectorization11() throws Exception {
+		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/5_13359_1.json").getPath());
+		Issue issue = JsonIO.mapIssue(path, IssueDeserializationMappingImpl.class);
+
+		int[] expected = createExpected(0, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 1);
+		Vector vec = engine.createVector(issue);
+		print(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
+	}
+
 
 	private void print(int[] expected, int[] actual) {
+		if (!VERBOSE) return;
 		System.out.println("           0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21");
 		System.out.println("Expected: " + Arrays.toString(expected));
 		System.out.println("Actual:   " + Arrays.toString(actual));
@@ -145,5 +266,27 @@ public class VectorizationTest {
 		linkElementComponent, patchElementComponent, sysSpecElement, priorityElement, reproductionElements,
 		screenshotElements, expectedBehaviour, observedBehaiour, testCasesElement, versionElement, componentElement,
 		productElement};
+	}
+
+	private void assertSimilarity(int[] expected, int[] actual) {
+		if(expected.length != actual.length) {
+			throw new AssertionFailedError("Length of arrays do not match");
+		}
+		List<Integer> confusion = new ArrayList<>();
+		for (int i = 0; i < expected.length; i++) {
+			if (expected[i] != actual[i]) {
+				confusion.add(i);
+				if (VERBOSE) {
+					System.out.println("WARN: Array elements at index " + i + " do not match. Expected: "
+							+ expected[i] + " Actual: " + actual[i]);
+				}
+			}
+		}
+		double similarity = 1 - ((double) confusion.size() / (double) expected.length);
+		if (similarity < MIN_PRECISION) {
+			throw new AssertionFailedError("Arrays differ beyond similarity threshold. "
+					+ "Assertion failed on " + confusion.size() + " of "
+					+ expected.length + " elements. Similarity " + similarity);
+		}
 	}
 }

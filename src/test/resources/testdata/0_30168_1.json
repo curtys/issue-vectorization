@@ -1,0 +1,14 @@
+{
+  "project_id" : 0,
+  "name" : "firefox-developer",
+  "bug_id" : 30168,
+  "vote" : 1,
+  "bug_severity" : "normal",
+  "priority" : "P3",
+  "product_name" : "Core",
+  "component_name" : "Layout",
+  "op_sys" : "Other",
+  "creation_ts" : 952017420000,
+  "short_desc" : "News stories on finance.yahoo.com are centered",
+  "thetext" : "go to http://finance.yahoo.com/q?d=t&s=AOL.  Below the stock quote there should\nbe some news stories.  They are centered.  In 4.x they are left aligned.\nAssuming it's our bug and not their html, it looks better left aligned."
+}

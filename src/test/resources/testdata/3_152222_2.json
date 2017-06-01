@@ -1,0 +1,14 @@
+{
+  "project_id" : 3,
+  "name" : "eclipse-reporter",
+  "bug_id" : 152222,
+  "vote" : 2,
+  "bug_severity" : "enhancement",
+  "priority" : "P4",
+  "product_name" : "Mylar",
+  "component_name" : "Tasks",
+  "op_sys" : "Windows XP",
+  "creation_ts" : 1154101384000,
+  "short_desc" : "Add \"Mark Completed\" action to menu for repository tasks",
+  "thetext" : "Its annoying to have to go to the editor page for a repository task to mark it complete. I'd like to schedule/mark complete repository tasks just from the task list action menu like a local task."
+}
