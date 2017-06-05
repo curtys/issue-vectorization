@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Removes all duplicate issues.
  * Created by scurty on 23.04.17.
  */
 public class DuplicateFilter extends ChainPreprocessor {

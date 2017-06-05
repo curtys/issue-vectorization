@@ -5,6 +5,7 @@ import ch.unibe.scg.curtys.vectorization.issue.Issue;
 import java.util.List;
 
 /**
+ * Sets the true label source of all issues.
  * Created by scurty on 15.03.17.
  */
 public class TrueLabelPreprocessor extends ChainPreprocessor {

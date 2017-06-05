@@ -6,6 +6,7 @@ import ch.unibe.scg.curtys.vectorization.label.LabelMapper;
 import java.util.List;
 
 /**
+ * Removes all issues with a unmapped label. Uses the true label source.
  * Created by scurty on 15.03.17.
  */
 public class UnmappedLabelFilter extends ChainPreprocessor {

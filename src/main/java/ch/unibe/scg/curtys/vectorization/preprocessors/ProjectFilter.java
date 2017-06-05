@@ -5,6 +5,7 @@ import ch.unibe.scg.curtys.vectorization.issue.Issue;
 import java.util.List;
 
 /**
+ * Removes all issues with a blacklisted project.
  * Created by scurty on 24.04.17.
  */
 public class ProjectFilter extends ChainPreprocessor {
