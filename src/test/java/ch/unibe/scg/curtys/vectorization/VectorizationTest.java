@@ -112,14 +112,14 @@ public class VectorizationTest {
 	}
 
 	/**
-	 * Issue in question: 105498 from eclipse project
+	 * Issue in question: 105498 from eclipse project https://bugs.eclipse.org/bugs/show_bug.cgi?id=105498
 	 */
 	@Test
 	public void testVectorization6() throws Exception {
 		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/2_105498_3.json").getPath());
 		Issue issue = JsonIO.mapIssue(path, IssueDeserializationMappingImpl.class);
 
-		int[] expected = createExpected(0, 0, 0,
+		int[] expected = createExpected(0, 1, 0,
 				0, 1, 0, 0,
 				0, 0, 0, 0,
 				0, 1, 0, 0,

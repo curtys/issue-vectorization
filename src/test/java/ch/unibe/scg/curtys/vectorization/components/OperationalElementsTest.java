@@ -56,14 +56,14 @@ public class OperationalElementsTest {
 
 	private String text8 = "reallyLongMethodName()";
 
-	private String text9 = "reallyLongMethodName(something)";
+	private String text9 = "reallyLongMethodName(Object something)";
 
 	private String text10 = "word";
 
 	private String text11 = "method ()";
 
 	private String text12 = "It would be nice to have functionality  "
-			+ "right-click on class for\nwhich a JUnit test was previously generated "
+			+ "right-click on class for\nwhich a Unit test was previously generated "
 			+ "and have menu item \"Update tests\". \nThis functionality would be "
 			+ "similar to the functionality currently provided when\nuser right-clicks "
 			+ "on Source->Implement/override methods.  The presented dialog\nwould "
@@ -73,6 +73,10 @@ public class OperationalElementsTest {
 	private String text13 = "to (for example)";
 
 	private String text14 = "JUnit";
+
+	private String text15 = "Word";
+
+	private String text16 = "reallyLongMethodName (Object something)";
 
 	private OperationalElements vecElement = new OperationalElements();
 
@@ -89,9 +93,11 @@ public class OperationalElementsTest {
 		assertTrue(vecElement.matchesFilter(text9));
 		assertFalse(vecElement.matchesFilter(text10));
 		assertTrue(vecElement.matchesFilter(text11));
-//		assertFalse(vecElement.matchesFilter(text12));
-//		assertFalse(vecElement.matchesFilter(text13));
+		assertFalse(vecElement.matchesFilter(text12));
+		assertFalse(vecElement.matchesFilter(text13));
 		assertTrue(vecElement.matchesFilter(text14));
+		assertFalse(vecElement.matchesFilter(text15));
+		assertTrue(vecElement.matchesFilter(text16));
 	}
 
 }
