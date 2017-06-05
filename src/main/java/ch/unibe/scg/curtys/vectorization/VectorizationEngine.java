@@ -2,8 +2,8 @@ package ch.unibe.scg.curtys.vectorization;
 
 import ch.unibe.scg.curtys.vectorization.components.*;
 import ch.unibe.scg.curtys.vectorization.io.CSVWriter;
-import ch.unibe.scg.curtys.vectorization.io.JsonIO;
 import ch.unibe.scg.curtys.vectorization.issue.Issue;
+import ch.unibe.scg.curtys.vectorization.label.LabelMapper;
 import ch.unibe.scg.curtys.vectorization.preprocessors.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,10 +26,10 @@ public class VectorizationEngine {
 	private boolean verbose = false;
 	private static final Logger log = LoggerFactory.getLogger(VectorizationEngine.class);
 	private boolean integrateLabels = false;
-	private boolean pseudoMapping = false;
 	private int trueLabelSource = Issue.LABEL_SOURCE_CLASSIFIED;
 	private Preprocessor preprocessor;
 	private boolean isPreprocessed = false;
+	private LabelMapper labelMapper;
 
 	VectorizationEngine() {}
 
@@ -218,15 +217,12 @@ public class VectorizationEngine {
 	}
 
 	private int getLabel(Issue issue) {
-		if(pseudoMapping) {
-			return Labels.pseudonym(issue.getTrueLabel());
-		}
-		return Labels.get(issue.getTrueLabel());
+		return labelMapper.get(issue.getTrueLabel());
 	}
 
 	public boolean validate() {
 		String[] labels = collectLabels().toArray(new String[]{});
-		return Labels.validateLabels(labels);
+		return labelMapper.validateLabels(labels);
 	}
 
 	public static class VectorizationEngineBuilder {
@@ -258,14 +254,6 @@ public class VectorizationEngine {
 			return this;
 		}
 
-		public VectorizationEngineBuilder pseudoMapping(boolean b) {
-			this.engine.pseudoMapping = b;
-			return this;
-		}
-		public VectorizationEngineBuilder pseudoMapping() {
-			return pseudoMapping(true);
-		}
-
 		public VectorizationEngineBuilder useDefaults() {
 			this.engine.initDefaults();
 			return this;
@@ -276,50 +264,14 @@ public class VectorizationEngine {
 			return this;
 		}
 
+		public VectorizationEngineBuilder labelMapper(LabelMapper labelMapper) {
+			this.engine.labelMapper = labelMapper;
+			return this;
+		}
+
 		public VectorizationEngine build() {
 			return this.engine;
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		VectorizationEngine engine;
-		URI inPath = VectorizationEngine.class.getResource("/json").toURI();
-		String baseOutPath = "classifier/src/main/resources/csv/";
-		String fileName = "issues_tracker_classified_excl.csv";
-		int trueLabelSource = Issue.LABEL_SOURCE_CLASSIFIED;
-
-		// Read issues
-		log.info("Reading JSON files...");
-		List<Issue> issues = JsonIO.readJsons(inPath);
-
-		// Configure engine
-		log.info("Setting up engine...");
-//		Labels.proxy(Labels.PROXY_BINARY);
-		// Preprocessor chain
-		ChainPreprocessor labelPreprocessor = new TrueLabelPreprocessor(trueLabelSource);
-		ChainPreprocessor unmappedLabelsPreprocessor = new UnmappedLabelFilter();
-		labelPreprocessor.addNext(unmappedLabelsPreprocessor);
-//		unmappedLabelsPreprocessor.addNext(new MatchingLabelFilter());
-//		labelPreprocessor.addNext(new MatchingLabelFilter());
-		engine = VectorizationEngine.builder()
-				.verbose()
-				.integrateLabels(true)
-				.pseudoMapping(true)
-				.preprocessor(labelPreprocessor)
-				.useDefaults()
-				.issues(issues)
-				.build();
-
-		// Check labels
-		engine.prepareIssues();
-		if (!engine.validate()) {
-			log.warn("Label mapping does not match actual labels!");
-			System.exit(1);
-		}
-
-		log.info("Creating vectors...");
-		engine.vectorize(baseOutPath+fileName);
-		log.info("Finished");
-
-	}
 }

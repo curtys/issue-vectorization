@@ -1,7 +1,7 @@
 package ch.unibe.scg.curtys.vectorization.preprocessors;
 
-import ch.unibe.scg.curtys.vectorization.Labels;
 import ch.unibe.scg.curtys.vectorization.issue.Issue;
+import ch.unibe.scg.curtys.vectorization.label.LabelMapper;
 
 import java.util.List;
 
@@ -10,8 +10,14 @@ import java.util.List;
  */
 public class UnmappedLabelFilter extends ChainPreprocessor {
 
+	private LabelMapper labelMapper;
+
+	public UnmappedLabelFilter(LabelMapper labelMapper) {
+		this.labelMapper = labelMapper;
+	}
+
 	@Override
 	protected void execute(List<Issue> issues) {
-		issues.removeIf(i -> !Labels.has(i.getTrueLabel()));
+		issues.removeIf(i -> !labelMapper.has(i.getTrueLabel()));
 	}
 }
