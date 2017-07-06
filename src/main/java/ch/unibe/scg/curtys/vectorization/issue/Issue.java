@@ -3,7 +3,7 @@ package ch.unibe.scg.curtys.vectorization.issue;
 import java.util.List;
 
 /**
- * Created by scurty
+ * @author curtys
  */
 public class Issue {
 

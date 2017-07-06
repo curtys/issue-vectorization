@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Removes all issues which have non-identical values as "classified issue type"
  * and "tracker issue type".
- * Created by scurty on 15.03.17.
+ * @author curtys
  */
 public class MatchingLabelFilter extends ChainPreprocessor {
 

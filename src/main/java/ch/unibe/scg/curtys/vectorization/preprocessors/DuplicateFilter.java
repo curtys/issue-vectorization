@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * Removes all duplicate issues.
- * Created by scurty on 23.04.17.
+ * @author curtys
  */
 public class DuplicateFilter extends ChainPreprocessor {
 

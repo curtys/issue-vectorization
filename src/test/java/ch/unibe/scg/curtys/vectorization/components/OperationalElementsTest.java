@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by scurty on 02.02.17.
+ * @author curtys
  */
 public class OperationalElementsTest {
 

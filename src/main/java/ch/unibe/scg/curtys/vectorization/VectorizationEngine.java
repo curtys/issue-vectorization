@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Created by scurty
+ * @author curtys
  */
 public class VectorizationEngine {
 	private List<VectorComponent> components;

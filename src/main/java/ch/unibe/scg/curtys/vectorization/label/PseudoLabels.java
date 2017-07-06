@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by scurty on 05.06.17.
+ * @author curtys
  */
 public class PseudoLabels implements LabelMapper {
 	private final BiMap<String, Integer> labelMap;

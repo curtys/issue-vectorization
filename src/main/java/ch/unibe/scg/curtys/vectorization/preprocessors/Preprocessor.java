@@ -5,7 +5,7 @@ import ch.unibe.scg.curtys.vectorization.issue.Issue;
 import java.util.List;
 
 /**
- * Created by scurty on 18.03.17.
+ * @author curtys
  */
 public interface Preprocessor {
 	void preprocess(List<Issue> issues);

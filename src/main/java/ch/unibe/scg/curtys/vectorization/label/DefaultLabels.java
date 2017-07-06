@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by scurty on 05.06.17.
+ * @author curtys
  */
 public class DefaultLabels implements LabelMapper {
 

@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Removes all issues with non-whitelisted labels. Uses the true label source of the issues.
- * Created by scurty on 01.06.17.
+ * @author curtys
  */
 public class TrueLabelFilter extends ChainPreprocessor {
 

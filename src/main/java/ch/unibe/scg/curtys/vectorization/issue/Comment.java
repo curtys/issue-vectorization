@@ -1,7 +1,7 @@
 package ch.unibe.scg.curtys.vectorization.issue;
 
 /**
- * Created by scurty
+ * @author curtys
  */
 public class Comment {
 	private String author;

@@ -17,7 +17,7 @@ import java.util.List;
 import static org.junit.Assert.assertArrayEquals;
 
 /**
- * Created by scurty on 25.02.17.
+ * @author curtys
  */
 public class VectorizationTest {
 

@@ -1,7 +1,7 @@
 package ch.unibe.scg.curtys.vectorization.label;
 
 /**
- * Created by scurty on 05.06.17.
+ * @author curtys
  */
 public interface LabelMapper {
 

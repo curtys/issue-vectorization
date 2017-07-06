@@ -5,7 +5,7 @@ import ch.unibe.scg.curtys.vectorization.issue.Issue;
 import java.util.List;
 
 /**
- * Created by scurty on 15.03.17.
+ * @author curtys
  */
 public abstract class ChainPreprocessor implements Preprocessor {
 

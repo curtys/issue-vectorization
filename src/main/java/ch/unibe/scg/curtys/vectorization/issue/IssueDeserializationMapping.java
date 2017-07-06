@@ -1,7 +1,7 @@
 package ch.unibe.scg.curtys.vectorization.issue;
 
 /**
- * Created by scurty on 23.04.17.
+ * @author curtys
  */
 public interface IssueDeserializationMapping {
 	Issue toIssue();

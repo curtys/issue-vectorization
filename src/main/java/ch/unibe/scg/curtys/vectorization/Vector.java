@@ -1,7 +1,7 @@
 package ch.unibe.scg.curtys.vectorization;
 
 /**
- * Created by scurty.
+ * @author curtys
  */
 public class Vector {
 

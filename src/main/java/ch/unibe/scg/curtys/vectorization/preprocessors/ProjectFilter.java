@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Removes all issues with a blacklisted project.
- * Created by scurty on 24.04.17.
+ * @author curtys
  */
 public class ProjectFilter extends ChainPreprocessor {
 	private final String[] projects;

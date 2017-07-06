@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Sets the true label source of all issues.
- * Created by scurty on 15.03.17.
+ * @author curtys
  */
 public class TrueLabelPreprocessor extends ChainPreprocessor {
 

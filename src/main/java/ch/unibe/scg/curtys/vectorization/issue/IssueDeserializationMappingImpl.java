@@ -1,11 +1,9 @@
 package ch.unibe.scg.curtys.vectorization.issue;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Date;
 
 /**
- * Created by scurty on 23.04.17.
+ * @author curtys
  */
 public class IssueDeserializationMappingImpl
 		implements IssueDeserializationMapping {

@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Created by scurty
+ * @author curtys
  */
 public class CSVWriter {
 
