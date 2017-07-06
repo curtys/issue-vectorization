@@ -23,4 +23,8 @@ public abstract class ChainPreprocessor implements Preprocessor {
 
 	protected abstract void execute(List<Issue> issues);
 
+	public Preprocessor getNext() {
+		return this.next;
+	}
+
 }
