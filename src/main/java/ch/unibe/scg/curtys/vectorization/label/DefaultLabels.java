@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class DefaultLabels implements LabelMapper {
 
-	private final BiMap<String, Integer> labelMap;
+	protected BiMap<String, Integer> labelMap;
 	private final Logger log = LoggerFactory.getLogger(DefaultLabels.class);
 
 	public DefaultLabels() {
