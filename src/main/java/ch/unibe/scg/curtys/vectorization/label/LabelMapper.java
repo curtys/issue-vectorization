@@ -1,5 +1,7 @@
 package ch.unibe.scg.curtys.vectorization.label;
 
+import java.util.Set;
+
 /**
  * @author curtys
  */
@@ -34,12 +36,18 @@ public interface LabelMapper {
 	 * @param classLabel
 	 * @return the unique String value or null, if the label is not known.
 	 */
-	String getNaturalLabel(int classLabel);
+	String get(int classLabel);
 
 	/**
 	 * Returns how many labels are known.
 	 * @return amount of known labels.
 	 */
 	int size();
+
+	/**
+	 * Returns a set with the string names of all known labels.
+	 * @return a {@link Set} with the natural label names.
+	 */
+	Set<String> getAll();
 
 }

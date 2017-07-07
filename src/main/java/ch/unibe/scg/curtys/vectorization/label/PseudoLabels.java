@@ -2,15 +2,14 @@ package ch.unibe.scg.curtys.vectorization.label;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 /**
  * @author curtys
  */
 public class PseudoLabels implements LabelMapper {
 	private final BiMap<String, Integer> labelMap;
-	private final Logger log = LoggerFactory.getLogger(DefaultLabels.class);
 	private final String pseudonym = "NOBUG";
 
 	public PseudoLabels() {
@@ -35,11 +34,17 @@ public class PseudoLabels implements LabelMapper {
 	}
 
 	@Override
-	public String getNaturalLabel(int classLabel) {
+	public String get(int classLabel) {
 		return labelMap.inverse().get(classLabel);
 	}
 
-	@Override public int size() {
+	@Override
+	public int size() {
 		return labelMap.size();
+	}
+
+	@Override
+	public Set<String> getAll() {
+		return labelMap.keySet();
 	}
 }

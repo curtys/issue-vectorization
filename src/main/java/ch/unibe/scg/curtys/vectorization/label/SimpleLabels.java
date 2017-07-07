@@ -1,17 +1,12 @@
 package ch.unibe.scg.curtys.vectorization.label;
 
-import com.google.common.collect.HashBiMap;
-
 /**
  * @author curtys
  */
-public class SimpleLabels extends DefaultLabels {
+public class SimpleLabels extends AbstractLabelMapper {
 
 	public SimpleLabels() {
-		labelMap = HashBiMap.create();
-		labelMap.put("BUG", 0);
-		labelMap.put("IMPROVEMENT", 1);
-		labelMap.put("RFE", 2);
+		super("BUG", "IMPROVEMENT", "RFE");
 	}
 
 }
