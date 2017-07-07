@@ -24,9 +24,8 @@ public class VectorizationEngine {
 	private List<VectorComponent> components;
 	private List<Issue> issues;
 	private boolean verbose = false;
-	private static final Logger log = LoggerFactory.getLogger(VectorizationEngine.class);
+	private static final Logger LOG = LoggerFactory.getLogger(VectorizationEngine.class);
 	private boolean integrateLabels = false;
-	private int trueLabelSource = Issue.LABEL_SOURCE_CLASSIFIED;
 	private Preprocessor preprocessor;
 	private boolean isPreprocessed = false;
 	private LabelMapper labelMapper;
@@ -129,7 +128,7 @@ public class VectorizationEngine {
 			String csvData = CSVWriter.arrayToCSV(vec.elements);
 			finalWriter.println(csvData);
 			if (verbose && completed[0] % 100 == 0)
-				log.info("Progress: " +
+				LOG.info("Progress: " +
 						completed[0] + " / " + issues.size());
 			completed[0]++;
 		});
@@ -171,38 +170,8 @@ public class VectorizationEngine {
 		return vec;
 	}
 
-//	private void vectorizeAll(String baseOutPath) {
-//		final int[] completed = { 1 };
-//
-//		issues.parallelStream().forEach(i -> {
-//			Vector vec = createVector(i);
-//			String outPath = baseOutPath + vec.label + "/";
-//			saveVector(vec, outPath, true);
-//			if(verbose && completed[0] % 100 == 0) log.info("Progress: " +
-//					completed[0] + " / " + issues.size());
-//			completed[0]++;
-//		});
-//	}
-//	private void saveVector(Vector vec, String outPath) {
-//		File file = new File(outPath);
-//		Path path = file.toPath().toAbsolutePath();
-//		CSVWriter.writeArrayToFile(path, vec.elements);
-//	}
-//
-//	private void saveVector(Vector vec, String outPath, boolean createFileName) {
-//		if(!createFileName) {
-//			saveVector(vec, outPath);
-//			return;
-//		}
-//
-//		String filename = vec.id;
-//		if(StringUtils.isNumeric(vec.id)) filename = vec.project+"-"+vec.id;
-//		filename += ".csv";
-//		saveVector(vec, outPath+filename);
-//	}
-
 	private Set<String> collectLabels() {
-		if (!isPreprocessed && preprocessor != null) log.warn("Issues have not been preprocessed yet!");
+		if (!isPreprocessed && preprocessor != null) LOG.warn("Issues have not been preprocessed yet!");
 		Set<String> labels = issues.stream().map(Issue::getTrueLabel).collect(Collectors.toSet());
 		return labels;
 	}
@@ -212,7 +181,7 @@ public class VectorizationEngine {
 			preprocessor.preprocess(issues);
 			isPreprocessed = true;
 		} else {
-			log.info("no preprocessor registered");
+			if(verbose) LOG.info("no preprocessor registered");
 		}
 	}
 
@@ -246,11 +215,6 @@ public class VectorizationEngine {
 
 		public VectorizationEngineBuilder preprocessor(Preprocessor p) {
 			this.engine.preprocessor = p;
-			return this;
-		}
-
-		public VectorizationEngineBuilder trueLabelSource(int source) {
-			this.engine.trueLabelSource = source;
 			return this;
 		}
 
