@@ -3,7 +3,7 @@ package ch.unibe.scg.curtys.vectorization.components;
 import ch.unibe.scg.curtys.vectorization.issue.Issue;
 
 /**
- * Created by scurty
+ * @author curtys
  */
 public class ScreenshotElements extends VectorComponent {
 	@Override public int value(Issue issue) {

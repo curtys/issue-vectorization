@@ -7,7 +7,7 @@ import ch.unibe.scg.curtys.vectorization.issue.Issue;
 import java.util.Arrays;
 
 /**
- * Created by scurty
+ * @author curtys
  */
 public class KeywordVectorComponent extends VectorComponent {
 

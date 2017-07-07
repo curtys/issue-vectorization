@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Created by scurty
+ * @author curtys
  */
 public abstract class VectorComponent {
 

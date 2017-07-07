@@ -1,7 +1,7 @@
 package ch.unibe.scg.curtys.vectorization.components.utils;
 
 /**
- * Created by scurty
+ * @author curtys
  */
 public interface TextFilter {
 	boolean filter(String text);

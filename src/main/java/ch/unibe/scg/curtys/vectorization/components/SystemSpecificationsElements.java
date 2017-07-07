@@ -4,7 +4,7 @@ import ch.unibe.scg.curtys.vectorization.issue.Issue;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Created by scurty
+ * @author curtys
  */
 public class SystemSpecificationsElements extends KeywordVectorComponent {
 
