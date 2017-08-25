@@ -27,7 +27,7 @@ public class IssueDeserializationMappingImpl
 		issue.setComponent(component_name);
 		issue.setId(bug_id);
 		issue.setSystemSpecification(op_sys);
-		issue.setPriority(bug_severity);
+		issue.setPriority(priority+" "+bug_severity);
 		issue.setProduct(product_name);
 		issue.setSummary(short_desc);
 		issue.setDescription(thetext);

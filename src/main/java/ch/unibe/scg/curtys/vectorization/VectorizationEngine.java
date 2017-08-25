@@ -97,6 +97,8 @@ public class VectorizationEngine {
 		ComponentElements componentElements = new ComponentElements();
 		// 21
 		ProductElements productElements = new ProductElements();
+		// 22
+		LowPriorityElement lowPriorityElement = new LowPriorityElement();
 
 		components.addAll(Arrays.asList(errorElements, operationalElements, codeSnippetElements,
 				docKeywords, enhanceKeywords,
@@ -104,7 +106,7 @@ public class VectorizationEngine {
 				implementationKeywords, linkElementsComponent, patchElementsComponent,
 				sysSpecElement, priorityElement, reproductionElements, screenshotElements,
 				expectedBehaviorComponent, observedBehaviorComponent, testCasesComponent,
-				versionElements, componentElements, productElements));
+				versionElements, componentElements, productElements, lowPriorityElement));
 	}
 
 	public void vectorize(String outPath) {

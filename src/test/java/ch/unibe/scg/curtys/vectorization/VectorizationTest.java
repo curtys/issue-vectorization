@@ -22,7 +22,7 @@ import static org.junit.Assert.assertArrayEquals;
 public class VectorizationTest {
 
 	private final VectorizationEngine engine = new VectorizationEngine();
-	private static final double MIN_PRECISION = 0.9;
+	private static final double MIN_PRECISION = 0.95;
 	private final static boolean VERBOSE = true;
 
 	@Before
@@ -39,10 +39,16 @@ public class VectorizationTest {
 		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/HTTPCLIENT-506.json").getPath());
 		Issue issue = JsonIO.mapIssue(path);
 
-		int[] expected = {0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1};
+		int[] expected = createExpected(0, 1, 0,
+				0, 1, 1, 0, 0,
+				0, 0, 1,
+				1, 1, 1,
+				0, 0, 0,
+				0, 0, 1, 1,
+				1, 0);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
-		assertArrayEquals(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
 	}
 
 	/**
@@ -53,10 +59,15 @@ public class VectorizationTest {
 		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/JCR-248.json").getPath());
 		Issue issue = JsonIO.mapIssue(path);
 
-		int[] expected = {0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1};
+		int[] expected = createExpected(0, 1, 1,
+				0, 1, 1, 1, 0,
+				1, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				1, 1, 1);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
-		assertArrayEquals(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
 	}
 
 	/**
@@ -67,10 +78,16 @@ public class VectorizationTest {
 		Path path = Paths.get(VectorizationTest.class.getResource("/testdata/LUCENE-565.json").getPath());
 		Issue issue = JsonIO.mapIssue(path);
 
-		int[] expected = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1};
+		int[] expected = createExpected(1, 1, 1,
+				1, 1, 1, 1,
+				1, 1, 1,
+				1, 1, 1,
+				1, 0, 0,
+				1, 0, 1, 0,
+				1, 1, 0);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
-		assertArrayEquals(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
 	}
 
 	/**
@@ -86,10 +103,10 @@ public class VectorizationTest {
 				0, 0, 0, 1,
 				1, 1, 0, 1,
 				0, 1, 0, 1,
-				1, 1, 1);
+				1, 1, 1, 1);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
-		assertArrayEquals(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
 	}
 
 	/**
@@ -105,10 +122,10 @@ public class VectorizationTest {
 				0, 0, 0, 0,
 				1, 0, 0, 1,
 				0, 0, 0, 1,
-				1, 1, 1);
+				1, 1, 1, 1);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
-		assertArrayEquals(expected, vec.elements);
+		assertSimilarity(expected, vec.elements);
 	}
 
 	/**
@@ -124,7 +141,7 @@ public class VectorizationTest {
 				0, 0, 0, 0,
 				0, 1, 0, 0,
 				0, 0, 0, 0,
-				0, 1, 1);
+				0, 1, 1, 1);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
 		assertSimilarity(expected, vec.elements);
@@ -143,7 +160,7 @@ public class VectorizationTest {
 				0, 0, 0, 1,
 				0, 0, 0, 0,
 				0, 0, 0, 0,
-				0, 1, 1);
+				0, 1, 1, 1);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
 		assertSimilarity(expected, vec.elements);
@@ -162,7 +179,7 @@ public class VectorizationTest {
 				0, 1, 0, 0,
 				0, 1, 0, 0,
 				0, 0, 0, 0,
-				0, 1, 1);
+				0, 1, 1, 1);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
 		assertSimilarity(expected, vec.elements);
@@ -181,7 +198,7 @@ public class VectorizationTest {
 				0, 1, 0, 1,
 				0, 1, 0, 0,
 				0, 0, 0, 0,
-				0, 1, 1);
+				0, 1, 1, 1);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
 		assertSimilarity(expected, vec.elements);
@@ -200,7 +217,7 @@ public class VectorizationTest {
 				0, 0, 0, 0,
 				0, 1, 0, 0,
 				0, 0, 0, 0,
-				0, 1, 1);
+				0, 1, 1, 1);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
 		assertSimilarity(expected, vec.elements);
@@ -219,7 +236,7 @@ public class VectorizationTest {
 				0, 1, 0, 0,
 				0, 0, 0, 0,
 				0, 0, 0, 0,
-				0, 1, 1);
+				0, 1, 1, 0);
 		Vector vec = engine.createVector(issue);
 		print(expected, vec.elements);
 		assertSimilarity(expected, vec.elements);
@@ -244,7 +261,7 @@ public class VectorizationTest {
 				+ "10: linkElementsComponent\n"
 				+ "11: patchElementsComponent\n"
 				+ "12: sysSpecElement\n"
-				+ "13: priorityElement\n"
+				+ "13: highPriorityElement\n"
 				+ "14: reproductionElements\n"
 				+ "15: screenshotElements\n"
 				+ "16: expectedBehaviour\n"
@@ -252,20 +269,21 @@ public class VectorizationTest {
 				+ "18: testCaseKeywords\n"
 				+ "19: versionElements\n"
 				+ "20: componentElements\n"
-				+ "21: productElements");
+				+ "21: productElements\n"
+				+ "22: lowPriorityElement");
 	}
 
 	private int[] createExpected(int errorElements, int operationalElements, int codeSnippetElements,
 			int docKeywords, int enhanceKeywords, int requestKeywords, int visibilityKeywords,
 			int actionKeywords, int namingKeywords, int implementationKeywords, int linkElementComponent,
-			int patchElementComponent, int sysSpecElement, int priorityElement, int reproductionElements,
+			int patchElementComponent, int sysSpecElement, int highPriorityElement, int reproductionElements,
 			int screenshotElements, int expectedBehaviour, int observedBehaiour, int testCasesElement,
-			int versionElement, int componentElement, int productElement) {
+			int versionElement, int componentElement, int productElement, int lowPriorityElement) {
 		return new int[] {errorElements, operationalElements, codeSnippetElements, docKeywords, enhanceKeywords,
 		requestKeywords, visibilityKeywords, actionKeywords, namingKeywords, implementationKeywords,
-		linkElementComponent, patchElementComponent, sysSpecElement, priorityElement, reproductionElements,
+		linkElementComponent, patchElementComponent, sysSpecElement, highPriorityElement, reproductionElements,
 		screenshotElements, expectedBehaviour, observedBehaiour, testCasesElement, versionElement, componentElement,
-		productElement};
+		productElement, lowPriorityElement};
 	}
 
 	private void assertSimilarity(int[] expected, int[] actual) {
