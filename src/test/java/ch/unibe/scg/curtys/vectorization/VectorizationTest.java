@@ -283,12 +283,12 @@ public class VectorizationTest {
 			int docKeywords, int enhanceKeywords, int requestKeywords, int visibilityKeywords,
 			int actionKeywords, int namingKeywords, int implementationKeywords, int linkElementComponent,
 			int patchElementComponent, int sysSpecElement, int highPriorityElement, int reproductionElements,
-			int screenshotElements, int expectedBehaviour, int observedBehaiour, int testCasesElement,
+			int screenshotElements, int expectedBehaviour, int observedBehaviour, int testCasesElement,
 			int versionElement, int componentElement, int productElement, int lowPriorityElement) {
 		return new int[] {errorElements, operationalElements, codeSnippetElements, docKeywords, enhanceKeywords,
 		requestKeywords, visibilityKeywords, actionKeywords, namingKeywords, implementationKeywords,
 		linkElementComponent, patchElementComponent, sysSpecElement, highPriorityElement, reproductionElements,
-		screenshotElements, expectedBehaviour, observedBehaiour, testCasesElement, versionElement, componentElement,
+		screenshotElements, expectedBehaviour, observedBehaviour, testCasesElement, versionElement, componentElement,
 		productElement, lowPriorityElement};
 	}
 
