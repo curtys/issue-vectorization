@@ -23,7 +23,8 @@ public class VectorizationTest {
 
 	private final VectorizationEngine engine = new VectorizationEngine();
 	private static final double MIN_PRECISION = 0.95;
-	private final static boolean VERBOSE = true;
+	private final static boolean VERBOSE = false;
+	private final static boolean DEBUG = true;
 
 	@Before
 	public void setUp() {
@@ -245,6 +246,11 @@ public class VectorizationTest {
 
 	private void print(int[] expected, int[] actual) {
 		if (!VERBOSE) return;
+			printVectorLegend(expected, actual);
+	}
+
+	private void printVectorLegend(int[] expected, int[] actual) {
+		if (!VERBOSE && !DEBUG) return;
 		System.out.println("           0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21");
 		System.out.println("Expected: " + Arrays.toString(expected));
 		System.out.println("Actual:   " + Arrays.toString(actual));
@@ -294,9 +300,10 @@ public class VectorizationTest {
 		for (int i = 0; i < expected.length; i++) {
 			if (expected[i] != actual[i]) {
 				confusion.add(i);
-				if (VERBOSE) {
+				if (DEBUG) {
 					System.out.println("WARN: Array elements at index " + i + " do not match. Expected: "
 							+ expected[i] + " Actual: " + actual[i]);
+					if (!VERBOSE) printVectorLegend(expected, actual);
 				}
 			}
 		}
