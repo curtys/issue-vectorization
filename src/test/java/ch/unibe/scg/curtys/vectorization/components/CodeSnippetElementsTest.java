@@ -34,6 +34,47 @@ public class CodeSnippetElementsTest {
 			+ "    static call to firestGeneratedClass._i<id>(this, cx, scope);\n"
 			+ "}";
 
+	private String text4 = "Simply compare JspRuntimeContext.checkCompile(), this calls \n"
+			+ "ctxt.incrementRemoved() if a FileNotFoundException occur. JspServletWrapper \n"
+			+ "only set a 404 if a FileNotFoundException occur and finish. \n"
+			+ " \n"
+			+ "Code from JspRuntineContext: \n"
+			+ "            synchronized(jsw) { \n"
+			+ "                try { \n"
+			+ "                    ctxt.compile(); \n"
+			+ "                } catch (FileNotFoundException ex) { \n"
+			+ "                    ctxt.incrementRemoved(); \n"
+			+ "                } catch (Throwable t) { \n"
+			+ "                    jsw.getServletContext().log(\"Background compile failed\", \n"
+			+ "                                                t); \n"
+			+ "                } \n"
+			+ "            } \n"
+			+ " \n"
+			+ "Code from JspServletWrapper: \n"
+			+ " \n"
+			+ "       } catch (FileNotFoundException ex) { \n"
+			+ "            String includeRequestUri = (String) \n"
+			+ "                request.getAttribute(\"javax.servlet.include.request_uri\"); \n"
+			+ "            if (includeRequestUri != null) { \n"
+			+ "                // This file was included. Throw an exception as \n"
+			+ "                // a response.sendError() will be ignored by the \n"
+			+ "                // servlet engine. \n"
+			+ "                throw new ServletException(ex); \n"
+			+ "            } else { \n"
+			+ "                try { \n"
+			+ "                    response.sendError(HttpServletResponse.SC_NOT_FOUND, \n"
+			+ "                                      ex.getMessage()); \n"
+			+ "                } catch (IllegalStateException ise) { \n"
+			+ "                    log.error(Localizer.getMessage(\"jsp.error.file.not.found\", \n"
+			+ "                                                   ex.getMessage()), \n"
+			+ "                              ex); \n"
+			+ "                } \n"
+			+ " \n"
+			+ " \n"
+			+ "add a simple ctxt.incrementRemoved in catch block and test case works. ";
+
+	private String text5 = "new URIBuilder(\"http://www.example.com\").addParameter(\"foo\", \"bar\")";
+
 	private CodeSnippetElements vecElement = new CodeSnippetElements();
 
 	@Test
@@ -41,6 +82,8 @@ public class CodeSnippetElementsTest {
 		assertTrue(vecElement.matchesFilter(text1));
 		assertFalse(vecElement.matchesFilter(text2));
 		assertTrue(vecElement.matchesFilter(text3));
+		assertTrue(vecElement.matchesFilter(text4));
+		assertTrue(vecElement.matchesFilter(text5));
 	}
 
 }

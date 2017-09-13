@@ -17,13 +17,19 @@ public class CodeSnippetElements extends VectorComponent {
 	private static class CodeSnippetFilter implements TextFilter {
 		@Override public boolean filter(String text) {
 
-//			Pattern pattern = Pattern.compile(";");
+			/* { followed by ; */
 			Pattern pattern1 = Pattern.compile("(\\{)+.*(;)+", Pattern.DOTALL);
+			/* value assignments */
 			Pattern pattern2 = Pattern.compile("(\\p{Upper}[a-z]*)+\\s\\p{Lower}[a-z]*(\\p{Upper}[a-z]+)*\\s=\\s.*;");
-			Matcher m1 = pattern1.matcher(text);
-			Matcher m2 = pattern2.matcher(text);
+			/* object instantiation */
+			Pattern pattern3 = Pattern.compile("new\\s(\\p{Upper}[a-z]*)+\\(");
 
-			return m1.find() || m2.find();
+			Matcher m1 = pattern1.matcher(text);
+			if (m1.find()) return true;
+			Matcher m2 = pattern2.matcher(text);
+			if (m2.find()) return true;
+			Matcher m3 = pattern3.matcher(text);
+			return m3.find();
 		}
 	}
 }
