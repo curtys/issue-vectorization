@@ -105,9 +105,11 @@ public class Issue {
 	public String textRepresentation() {
 		String comments = "";
 		if (getComments() != null) {
+			StringBuilder commentsBuilder = new StringBuilder();
 			for (Comment comment : getComments()) {
-				comments += comment.getBody() + "\n";
+				commentsBuilder.append(comment.getBody()).append("\n");
 			}
+			comments = commentsBuilder.toString();
 			comments.trim();
 		}
 		return summary+"\n"+description+"\n"+comments;
