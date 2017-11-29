@@ -1,0 +1,23 @@
+{
+    "comments": [
+        {
+            "author": "andrebargull@googlemail.com",
+            "body": "No longer reproducible in current master, also see change [1]. Bug report can be closed.\n\n[1] https://github.com/mozilla/rhino/commit/366d7cf534d83c31eedb9b49234c9388e3caefc7",
+            "date": "20111020T21:04:55",
+            "id": 0
+        }
+    ],
+    "component": "Core",
+    "description": "Created attachment 560269\nChapter15_Object_defineProperty.java\n\nUser Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:6.0.2) Gecko/20100101 Firefox/6.0.2\nBuild ID: 20110902133214\n\nSteps to reproduce:\n\nCalled \"Object.defineProperty()\" resp. \"Object.defineProperties()\" with an accessor descriptor which includes an accessor (\"get\" or \"set\") which is explicitly set to \"undefined\". \n\nSee test262 for the original test case:\ntest/suite/ietestcenter/chapter15/15.2/15.2.3/15.2.3.6/15.2.3.6-3-231.js\ntest/suite/ietestcenter/chapter15/15.2/15.2.3/15.2.3.6/15.2.3.6-3-261.js\n\n\nActual results:\n\nSubsequent [[Get]] or [[Put]] operations now lead to a \"java.lang.ClassCastException: org.mozilla.javascript.Undefined cannot be cast to org.mozilla.javascript.Function\" exception.\n\n\nExpected results:\n\nAccessor descriptors should allow \"undefined\" as a valid entry per ES5 spec.",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "686797",
+    "issuetypeClassified": "RFE",
+    "issuetypeTracker": "BUG",
+    "priority": "-- normal",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "Accessor descriptor with accessor set explicitly to \"undefined\" throws ClassCastException",
+    "systemSpecification": "",
+    "version": "head"
+}

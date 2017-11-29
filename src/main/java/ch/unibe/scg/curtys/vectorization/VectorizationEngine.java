@@ -1,6 +1,7 @@
 package ch.unibe.scg.curtys.vectorization;
 
 import ch.unibe.scg.curtys.vectorization.components.*;
+import ch.unibe.scg.curtys.vectorization.components.utils.StrictKeywordRepository;
 import ch.unibe.scg.curtys.vectorization.io.CSVWriter;
 import ch.unibe.scg.curtys.vectorization.issue.Issue;
 import ch.unibe.scg.curtys.vectorization.label.LabelMapper;
@@ -51,22 +52,24 @@ public class VectorizationEngine {
 		// 4
 		KeywordVectorComponent enhanceKeywords = new KeywordVectorComponent(
 				"improvement", "improve", "optimization", "optimize", "performance",
-				"overhead", "logging", "speedup", "easier");
+				"overhead", "logging", "speedup", "easier", "useful");
 		// 5
 		KeywordVectorComponent requestKeywords = new KeywordVectorComponent(
-				"feature", "features", "support", "implement");
+				"feature", "features", "support", "implement", "provide");
 		// 6
 		KeywordVectorComponent visibilityKeywords = new KeywordVectorComponent(
 				"visibility", "private", "public", "protected", "package private");
 		// 7
 		KeywordVectorComponent actionKeywords = new KeywordVectorComponent(
-				"refactor", "refactoring", "rename", "renaming", "extract", "extracting", "move");
+				"refactor", "refactoring", "rename", "renaming", "extract", "extracting");
+		actionKeywords.addRepository(new StrictKeywordRepository("remove", "move"));
 		// 8
 		KeywordVectorComponent namingKeywords = new KeywordVectorComponent(
 				"name", "naming", "naming convention", "simple name");
 		// 9
 		KeywordVectorComponent implementationKeywords = new KeywordVectorComponent(
-				"subclass", "subclassing", "extend", "extends", "overload", "overloading", "overloaded");
+				"subclass", "subclassing", "extend", "extends", "overload",
+				"overloading", "overloaded", "interface");
 		// 10
 		LinkElements linkElementsComponent = new LinkElements();
 		// 11
@@ -87,10 +90,11 @@ public class VectorizationEngine {
 				"expected", "expected behavior", "expected behaviour");
 		// 17
 		KeywordVectorComponent observedBehaviorComponent = new KeywordVectorComponent(
-				"observed", "observed behavior", "observed behaviour", "actual behaviour", "actual behavior");
+				"observed", "observed behavior", "observed behaviour",
+				"actual behaviour", "actual behavior", "actual result", "actual results");
 		// 18
 		KeywordVectorComponent testCasesComponent = new KeywordVectorComponent(
-				"test case", "test cases", "@Test");
+				"test case", "test cases", "testcase", "testcases", "@Test");
 		// 19
 		VersionElements versionElements = new VersionElements();
 		// 20

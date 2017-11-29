@@ -1,0 +1,53 @@
+{
+    "comments": [
+        {
+            "author": "szegedia@freemail.hu",
+            "body": "Created attachment 422420\nImplementation\n\nAttaching patch for implementation of require().\nAs far as I can tell, this implementation of require() is complete. What still isn't in there are:\na) stock module loader for shell\nb) support for loading any standard modules that might be packaged within js.jar. I'm not actually sure that's a good idea at all, as leaving that out allows folks to upgrade various CommonJS modules without upgrading Rhino. We'll discuss that later.\n\nSome remarks on the implementation:\n\n1. I added few new convenience statics to ScriptRuntime and ScriptableObject. You can lookup where did I call them from, so you can see why are they convenient.\n\n2. Modules/1.1 doesn't specify the relation to global natives. This page has a good discussion of the issue: <http://wiki.commonjs.org/wiki/Modules/ProposalForNativeExtension>. I was torn between implementing \"Modules with global natives\" (MGN) as the only option, or allowing flexible choice between MGN and its alternative MSB \"Modules with sandboxed natives\". In the end, I chose to go with MGN for now. A choice can be introduced later. The reason I didn't go with offering choice is that while I'm wary as anyone else about natives being shared between modules, I'm even more wary about every module having its own set of them. As soon as objects start getting passed across module boundaries, instanceof checks will start failing, and further a module extending a native prototype might be faced with an object of same class name, but without the extensions. I honestly hope that nobody wants to go there. If I'm proven wrong by popular vote though, I'm open for reconsideration.\n\nWell, that's it - try to incorporate the patch into your CVS HEAD and see what you can do with it, and post feedback here.",
+            "date": "20100119T22:40:46",
+            "id": 0
+        },
+        {
+            "author": "szegedia@freemail.hu",
+            "body": "Created attachment 424507\nSecond implementation\n\nHere's the second implementation. It is bigger than the first one was, and -- as with all design work -- I had to decide on some tradeoffs. Namely, how much of an actual module script loading/caching implementation am I willing to put in there. There's a fine balance between forcing every user into reinventing the wheel on one end, and giving them everything but the kitchen sink on the other end. I am very conscious about what went in there.\n\nThe implementation is separated into two packages: org.mozilla.javascript.commonjs.module, and org.mozilla.javascript.commonjs.module.support. The base package has only one interface and two classes. One class (named Require) is the require() function itself, fully implementing all of the Modules/1.1 specification, *except* for the part of obtaining the actual module scripts. The another class + one interface (ModuleScript and ModuleScriptProvider) form the extension point to allow implementers to supply module scripts to the require() function. That's it. You can implement your own ModuleScriptProvider, implement any loading and caching mechanism that you wish.\n\nI could've provided only this much, but if I stopped here, then everyone would need to invent their own loading and caching mechanism.\n\nThat's where the .support package comes in. The .support package has some convenience stuff. First of all, it has a RequireBuilder, which is useful for building a bunch of similar Require instances - those that differ only in the top-level JavaScript scope they're bound to.\n\nSecond, and more important, it features two caching module script providers - one using strong reference, another using soft references. The latter one plays nicely with garbage collector and allows an unused module script to be unloaded when not in use. These objects are caching compiled Rhino org.mozilla.javascript.Script objects.\n\nBacking these caching module providers is a module source provider interface, which can actually find the source of a module script. Again, I provide a basic implementation that can load sources from any URL for which the JRE has a stream protocol handler.\n\nThe interface and the protocol between the module source provider and the caching module providers allows for implementation of efficient cache revalidation techniques, and I indeed went to the length of supporting HTTP 1.1 caching in the default URL-based module source provider.\n\nThere's also interface for attaching a security domain to the module sources, but I don't ship a default implementation for it, for now. Creating a security domain provider that creates java.security.CodeSource objects for use with an org.mozilla.javascript.PolicySecurityController would actually be easy, and I might choose to do that eventually.\n\nSo, to recap, the base package gives you the require() functionality, and leaves the details of loading/caching open. The .support package gives you implementations for two caches for compiled script modules and one loader for script sources. This should be enough for, I think, 80% of the use cases.\n\nFeel free to review and comment.",
+            "date": "20100131T19:06:46",
+            "id": 1
+        },
+        {
+            "author": "szegedia@freemail.hu",
+            "body": "Created attachment 426212\n3rd patch: improved 2nd patch by adding tests & making require() threadsafe\n\nOkay, here's the third patch with the the implementation. It is functionally the same (except for one thing - more on this in a second), just been subjected to tests, and bugs have been fixed. Test coverage is 60% as of now; the not yet covered things are mostly related to revalidation of cached module scripts. The tests are also attached in the patch; I included a snapshot of Kris Kowal's Module/1.0 compliance tests from <http://github.com/kriskowal/commonjs/tree/master/tests/modules/1.0/>.\n\nAs for the single functionality improvement - I succeeded in making Require threadsafe. In itself, not a big thing - it would be trivial to make it threadsafe by making getExportedModuleInterface() synchronized.\n\nExcept that'd yield poor concurrent performance and also force synchronization even in single-threaded use case. So instead, I implemented a solution that has a fast path that avoids synchronization and allows maximum concurrency, while still guaranteeing deterministic loading results when used from multiple threads.\n\nI decided to do this as lots of server-side JS users are using shared top-level scopes, and might want to have a shared require() in it for performance reasons. These shared top-level scopes are naturally accessed from multiple threads concurrently.\n\nOf course, they'll have to be careful to avoid loading modules that are themselves not threadsafe, but that's not the concern of someone who merely implements a loader for modules.",
+            "date": "20100210T09:46:00",
+            "id": 2
+        },
+        {
+            "author": "szegedia@freemail.hu",
+            "body": "Given that the current implementation state seems sufficiently stable, I committed it to CVS and will continue development there.\n\nThe committed version features following changes compared to patch 3:\n\n- Require constructor can now accept a pre-exec and a post-exec Script; these are executed before and after any module script.\n- RequireBuilder has been moved to the base package, seeing how Require constructor now takes quite a lot of arguments (which is how I like it, as I love immutable objects when possible).\n- Renamed the org.mozilla.javascript.commonjs.module.support package to *.provider, as all the classes deal with module provider implementation\n- added a MultiModuleScriptProvider, for easy composition of multiple module source providers into a single one.",
+            "date": "20100215T19:35:33",
+            "id": 3
+        },
+        {
+            "author": "albersato@gmail.com",
+            "body": "The code at cvs doesn't compile: the org.mozilla.javascript.commonjs.module.provider.ParsedContentType is lost in the CVS.",
+            "date": "20100521T23:24:14",
+            "id": 4
+        },
+        {
+            "author": "hannesw@gmail.com",
+            "body": "Closing.",
+            "date": "20111119T14:57:49",
+            "id": 5
+        }
+    ],
+    "component": "Core",
+    "description": "Implement full support for CommonJS Modules/1.1. Basically, we need means for constructing a require() function that behaves as specified in http://wiki.commonjs.org/wiki/Modules/1.1",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "540724",
+    "issuetypeClassified": "RFE",
+    "issuetypeTracker": "RFE",
+    "priority": "-- enhancement",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "Implement support for CommonJS Modules/1.1",
+    "systemSpecification": "",
+    "version": "head"
+}

@@ -1,0 +1,53 @@
+{
+    "comments": [
+        {
+            "author": "ruchi goel",
+            "body": "Recommended fix for this issue  : Kindly review .\n\nAdd following methods in PersistenceManager.java :\n\n public void move(String srcPath, String destPath) throws PersistenceException;\n    \n public void copy(String srcPath, String destPath) throws PersistenceException;\n\n\nAdd following methods in PersistenceManagerImpl.java\nimport javax.jcr.Workspace;\n /* added by ruchi */\n    public void move(String srcPath, String destPath){\n        Workspace workspace = session.getWorkspace();\n        try{\n            workspace.move(srcPath,destPath);\n        }catch(javax.jcr.nodetype.ConstraintViolationException cve){\n            throw new PersistenceException(\n                    \"Cannot move the node from  \" + srcPath + \" to \" + destPath + \".\" +  \" Violation of a nodetype or attempt to move under a property detected\", cve);\n            \n        }catch(javax.jcr.version.VersionException ve){\n            throw new VersionException(\n                    \"Cannot move the node from \" + srcPath + \" to \" + destPath + \".\" + \" Parent node of source or destination is versionable and checked in \", ve);\n            \n        }catch(javax.jcr.AccessDeniedException ade){\n            throw new PersistenceException(\n                    \"Cannot move the node from \" + srcPath +  \" to \" + destPath + \".\" + \" Session does not have access permissions\", ade);\n            \n        }catch(javax.jcr.PathNotFoundException pnf){\n            throw new PersistenceException(\n                    \"Cannot move the node from \" + srcPath + \" to \" + destPath + \".\" + \" Node at source or destination does not exist \", pnf);\n            \n        }catch(javax.jcr.ItemExistsException ie){\n            throw new PersistenceException(\n                    \"Cannot move the node from \" + srcPath + \" to \" + destPath + \".\" +  \" It might already exist at destination path.\", ie);\n            \n        }catch(javax.jcr.lock.LockException le){\n            throw new PersistenceException(\n                    \"Cannot move the node from \" + srcPath + \" to \" + destPath + \".\" +  \"Violation of a lock detected\", le);\n            \n        }catch(javax.jcr.RepositoryException re){\n            throw new org.apache.portals.graffito.jcr.exception.RepositoryException(\n                    \"Cannot move the node from \" + srcPath + \" to \" + destPath + \".\" , re);\n        }\n    }\n    /* added by ruchi */\n     public void copy(String srcPath, String destPath){\n        Workspace workspace = session.getWorkspace();\n        try{\n            workspace.copy(srcPath,destPath);\n        }catch(javax.jcr.nodetype.ConstraintViolationException cve){\n            throw new PersistenceException(\n                    \"Cannot copy the node from \" + srcPath + \" to \" + destPath + \".\" +  \"Violation of a nodetype or attempt to copy under property detected \", cve);\n            \n        }catch(javax.jcr.version.VersionException ve){\n            throw new VersionException(\n                    \"Cannot copy the node from \" + srcPath + \" to \" + destPath + \".\" + \"Parent node of source or destination is versionable and checked in \", ve);\n            \n        }catch(javax.jcr.AccessDeniedException ade){\n            throw new PersistenceException(\n                    \"Cannot copy the node from \" + srcPath + \" to \" + destPath + \".\" + \" Session does not have access permissions\", ade);\n            \n        }catch(javax.jcr.PathNotFoundException pnf){\n            throw new PersistenceException(\n                    \"Cannot copy the node from \" + srcPath + \" to \" + destPath + \".\" + \"Node at source or destination does not exist \", pnf);\n            \n        }catch(javax.jcr.ItemExistsException ie){\n            throw new PersistenceException(\n                    \"Cannot copy the node from \" + srcPath + \" to \" + destPath + \".\" +  \"It might already exist at destination path.\", ie);\n            \n        }catch(javax.jcr.lock.LockException le){\n            throw new PersistenceException(\n                    \"Cannot copy the node from \" + srcPath + \" to \" + destPath + \".\" +  \"Violation of a lock detected\", le);\n            \n        }catch(javax.jcr.RepositoryException re){\n            throw new org.apache.portals.graffito.jcr.exception.RepositoryException(\n                    \"Cannot copy the node from \" + srcPath + \" to \" + destPath + \".\" , re);\n        }\n    } ",
+            "date": "2007-05-10T09:45:59.841+0000",
+            "id": 0
+        },
+        {
+            "author": "Christophe Lombart",
+            "body": "Could you provide some unit tests ?  Thanks \n",
+            "date": "2007-05-13T19:16:07.982+0000",
+            "id": 1
+        },
+        {
+            "author": "Christophe Lombart",
+            "body": "Patch apply. Thanks\nIt should be nice if you can provide unit test for new features.  \nLet me know if you have time for doing it.",
+            "date": "2007-05-13T20:51:28.379+0000",
+            "id": 2
+        },
+        {
+            "author": "ruchi goel",
+            "body": "\"Patch Apply\" . Does that mean I checkin the code . Do I have permissions to do so ? I will try to come up with unit test  although I have tested it in my use case. ",
+            "date": "2007-05-14T05:25:01.166+0000",
+            "id": 3
+        },
+        {
+            "author": "ruchi goel",
+            "body": "Ok. I see it checked in , in the latest trunk code . For the unit test, can u wait for a while, I am stuck with deliverables. Or if you get a chance , please go ahead with it. ",
+            "date": "2007-05-14T06:16:00.732+0000",
+            "id": 4
+        },
+        {
+            "author": "Christophe Lombart",
+            "body": "the unit tests are working now.",
+            "date": "2007-06-04T21:57:50.985+0000",
+            "id": 5
+        }
+    ],
+    "component": "jackrabbit-ocm",
+    "description": "The PersistenceManagerImpl.java  in jcr-apping layer does not implement move and copy methods for a node.  ",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "JCR-910",
+    "issuetypeClassified": "RFE",
+    "issuetypeTracker": "BUG",
+    "priority": "Major",
+    "product": "JACKRABBIT",
+    "project": "JACKRABBIT",
+    "summary": "jcr mapping layer does not expose node move and node copy via PersistenceManager.java",
+    "systemSpecification": null,
+    "version": "1.3"
+}

@@ -1,0 +1,53 @@
+{
+    "comments": [
+        {
+            "author": "Edgar Poce",
+            "body": "I leave the model 3 to a jcr-rmi experienced user.",
+            "date": "2005-04-09T23:16:15.000+0000",
+            "id": 0
+        },
+        {
+            "author": "Edgar Poce",
+            "body": "I forgot to specify that it's a tomcat 4.1.x how-to :(.",
+            "date": "2005-04-09T23:25:56.000+0000",
+            "id": 1
+        },
+        {
+            "author": "Jukka Zitting",
+            "body": "Thanks for the HOWTO docs! Added to Jackrabbit in revision 160887.",
+            "date": "2005-04-11T23:37:59.000+0000",
+            "id": 2
+        },
+        {
+            "author": "Edgar Poce",
+            "body": "Changes:\n1. Note saying it's a tomcat 4.1 how-to\n2. Note added to remember not to use two repository instances against the same physical storage. It seems to be a common configuration error.\n3. jcr-rmi how-to. I adapted the example from jcr-rmi javadocs to Tomcat 4.1 but maybe a note saying \"refer to jcr-rmi javadocs\" would suffice. ",
+            "date": "2005-04-12T08:25:25.000+0000",
+            "id": 3
+        },
+        {
+            "author": "Edgar Poce",
+            "body": "typo fixed. Use this patch instead of the previous.",
+            "date": "2005-04-12T08:33:17.000+0000",
+            "id": 4
+        },
+        {
+            "author": "Jukka Zitting",
+            "body": "Thanks, very nice work! I committed your changes in revision 161082 with some reorganizations and additional docs (Tomcat 5.5 instructions) by myself.",
+            "date": "2005-04-13T03:33:46.000+0000",
+            "id": 5
+        }
+    ],
+    "component": "docs",
+    "description": "how-to with a detailed description of the steps required for each deployment model. ",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "JCR-102",
+    "issuetypeClassified": "OTHER",
+    "issuetypeTracker": "IMPROVEMENT",
+    "priority": "Minor",
+    "product": "JACKRABBIT",
+    "project": "JACKRABBIT",
+    "summary": "how-to deployment models",
+    "systemSpecification": null,
+    "version": ""
+}

@@ -1,0 +1,29 @@
+{
+    "comments": [
+        {
+            "author": "norrisboyd@gmail.com",
+            "body": "Created attachment 321328\nProposed patch\n\nOnce I ran this through the regression tests, this ended up being more complicated unfortunately. There was a missing error check all along, but the previous bug caused us to pass a negative test, so I had to implement that to get everything to pass.",
+            "date": "20080516T21:12:24",
+            "id": 0
+        },
+        {
+            "author": "norrisboyd@gmail.com",
+            "body": "Fixed: \n\nChecking in src/org/mozilla/javascript/IRFactory.java;\n/cvsroot/mozilla/js/rhino/src/org/mozilla/javascript/IRFactory.java,v  <--  IRFactory.java\nnew revision: 1.119; previous revision: 1.118\ndone\nChecking in src/org/mozilla/javascript/Parser.java;\n/cvsroot/mozilla/js/rhino/src/org/mozilla/javascript/Parser.java,v  <--  Parser.java\nnew revision: 1.128; previous revision: 1.127\ndone\nChecking in src/org/mozilla/javascript/resources/Messages.properties;\n/cvsroot/mozilla/js/rhino/src/org/mozilla/javascript/resources/Messages.properties,v  <--  Messages.properties\nnew revision: 1.87; previous revision: 1.86\ndone\nRCS file: /cvsroot/mozilla/js/rhino/testsrc/doctests/433878.doctest,v\ndone\nChecking in testsrc/doctests/433878.doctest;\n/cvsroot/mozilla/js/rhino/testsrc/doctests/433878.doctest,v  <--  433878.doctestinitial revision: 1.1\ndone\n",
+            "date": "20080516T21:13:41",
+            "id": 1
+        }
+    ],
+    "component": "Compiler",
+    "description": "From http://groups.google.com/group/mozilla.dev.tech.js-engine.rhino/msg/2605df4e4d2b328d:\n\nHi Everyone,\n\nwith the following source code:\n\nfunction myFunc(a, b, c) {\n  let sum = a + b + c ;\n  return sum / 3 ;\n\n}\n\np(\"the string is: \" + myFunc.toString()) ;\n\nI get the following output:\n\nthe string is:\nfunction myFunc(a, b, c) {\n    let sum = a + b + creturn sum / 3;\n\n}\n\nApplying the following patch:\n\ndiff -r -u mozilla/js/rhino/src/org/mozilla/javascript/Parser.java\nmozilla-patched/js/rhino/src/org/mozilla/javascript/Parser.java\n--- mozilla/js/rhino/src/org/mozilla/javascript/Parser.java     2008-04-19\n18:53:24.000000000 -0700\n+++ mozilla-patched/js/rhino/src/org/mozilla/javascript/Parser.java\n2008-05-13 12:46:51.000000000 -0700\n@@ -1117,7 +1117,7 @@\n             } else {\n                 pn = variables(false, tt);\n             }\n-            return pn;\n+            break;\n           }\n\n           case Token.RETURN:\n\ngives the following (presumably correct) output:\n\nthe string is:\nfunction myFunc(a, b, c) {\n    let sum = a + b + c;\n    return sum / 3;\n\n}\n\nLet me know if anyone sees a problem with this!\n\nThanks,\nBen",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "433878",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "-- normal",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "minor glitch when decompiling 'let' statements",
+    "systemSpecification": "linux x86",
+    "version": "other"
+}

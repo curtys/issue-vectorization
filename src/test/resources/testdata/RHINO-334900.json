@@ -1,0 +1,35 @@
+{
+    "comments": [
+        {
+            "author": "levy@csl.sri.com",
+            "body": "Created attachment 219257\nPatch to Parser.java\n\nA fix for this example, which now produces \n  new XML(\"...\")\nfor the XML literal.",
+            "date": "20060421T04:08:38",
+            "id": 0
+        },
+        {
+            "author": "levy@csl.sri.com",
+            "body": "The above fix still doesn't correct the problem if the\nXML contains {} expressions\n\njs> uneval(function(){ return <foo>{2+2}</foo> })\n(function () {return new XML(\"<foo>\"{2 + 2}\"</foo>\");})\n\nSo perhaps uneval shouldn't use the XML constructor at all, but\njust reproduce the original:\n(function () { return <foo>{2 + 2}</foo>; })\n\nBut I'm not that familiar with Rhino...\nIs there some other reason for using the XML & XMLList\nconstructors here?  Any suggestions on the right solution?\n",
+            "date": "20060421T04:47:22",
+            "id": 1
+        },
+        {
+            "author": "levy@csl.sri.com",
+            "body": "Issue has now been fixed (as of 1.6R3).",
+            "date": "20060814T16:14:12",
+            "id": 2
+        }
+    ],
+    "component": "E4X",
+    "description": "User-Agent:       Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1\nBuild Identifier: \n\nuneval() produces invalid syntax for functions that contain E4X literals.\nAppears to be a bug in Parser.java.\n\nReproducible: Always\n\nSteps to Reproduce:\njs> s = uneval(function() { return <parbuckle/>; });\n(function () {return new .XML\"<parbuckle/>\";})\n\n\n\nActual Results:  \neval(s) produces syntax error\n\nExpected Results:  \nResult of uneval should be\n(function () {return new XML(\"<parbuckle/>\");})\nor perhaps\n(function () {return <parbuckle/>;})\n\n\n\nOnly happens if E4X literal is inside a function block.\nFor instance, this works:\n\njs> uneval({ widget: <parbuckle/>})\n({widget:<parbuckle/>})",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "334900",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "-- normal",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "uneval() doesn't work for E4X literals",
+    "systemSpecification": "",
+    "version": "other"
+}

@@ -1,0 +1,47 @@
+{
+    "comments": [
+        {
+            "author": "norrisboyd@gmail.com",
+            "body": "Fixed:\n\nChecking in Interpreter.java;\n/cvsroot/mozilla/js/rhino/src/org/mozilla/javascript/Interpreter.java,v  <--  In\nterpreter.java\nnew revision: 1.74; previous revision: 1.73\ndone\nChecking in ScriptRuntime.java;\n/cvsroot/mozilla/js/rhino/src/org/mozilla/javascript/ScriptRuntime.java,v  <--\nScriptRuntime.java\nnew revision: 1.87; previous revision: 1.86\ndone",
+            "date": "20020321T01:51:28",
+            "id": 0
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "Reopening bug -\n\n\n-------------------    SUMMARY OF TEST RESULTS    ---------------------------\nThe test above checks delete of functions defined in\n\n1. global scope\n2. function scope\n3. eval scope (delete also done within eval scope)\n4. eval scope (delete done in global scope)\n\n\n-------------------    OUTPUT BEFORE PATCH    ---------------------------\nFAILED!: Section 1 of test -\nFAILED!: Expected value 'f lives!', Actual value 'f was deleted'\n\nFAILED!: Section 2 of test -\nFAILED!: Expected value 'f lives!', Actual value 'f was deleted'\n\n\n-------------------    OUTPUT AFTER PATCH    ----------------------------\nFAILED!: Section 3 of test -\nFAILED!: Expected value 'h was deleted', Actual value 'h lives!'\n\nFAILED!: Section 4 of test -\nFAILED!: Expected value 'k was deleted', Actual value 'k lives!'\n\n\nSo the patch has fixed the bug in global and function scope, but\nhas changed the behavior in eval scope. It used to be that functions\ndefined in eval scope were deletable; now apparently they are not.\nAccording to ECMA, they should be. See discussion in bug 131964.",
+            "date": "20020321T03:11:09",
+            "id": 1
+        },
+        {
+            "author": "norrisboyd@gmail.com",
+            "body": "Fixed: \n\nChecking in Interpreter.java;\n/cvsroot/mozilla/js/rhino/src/org/mozilla/javascript/Interpreter.java,v  <--  In\nterpreter.java\nnew revision: 1.75; previous revision: 1.74\ndone",
+            "date": "20020321T17:33:16",
+            "id": 2
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "Verified FIXED -\n\nThe testcase passes in both the rhino and rhinoi shells on WinNT.",
+            "date": "20020323T02:12:23",
+            "id": 3
+        },
+        {
+            "author": "igor@mir2.org",
+            "body": "Targeting as resolved against 1.5R4",
+            "date": "20040213T12:21:38",
+            "id": 4
+        }
+    ],
+    "component": "Core",
+    "description": "This is the Rhino version of bug 131964 against SpiderMonkey.\nThe testcase for this bug is \n\n          mozilla/js/tests/ecma_3/Function/regress-131964.js\n\nAt present, it tests four scenarios:\n\n1. f defined and deleted in global scope\n2. f defined and deleted in function scope\n3. f defined and deleted in eval scope\n4. f defined in eval scope, but deleted in global scope\n\nI'm still trying to sort out what the expected behavior should be\nfor 3 and 4, but ECMA seems pretty clear about 1 and 2: f should not\nbe deleted in those cases.\n\nHere are the ECMA references quoted by Thomas Much in the original bug:\n\n> ECMA 262-3, section 13 says that function declarations create a property\n> of the current variable object as specified in 10.1.3.\n\n> 10.1.3 says that for function declarations, the property's attributes\n> are determined by the type of the code.\n\n> 10.2.1 says that for global code, variable instantiation is performed\n> [...] using property attributes { DontDelete }.\n\n\nAnd there are similar sections for function scope and eval scope...",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "132217",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "-- normal",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "delete on global function should not delete the function",
+    "systemSpecification": "windows nt x86",
+    "version": "other"
+}

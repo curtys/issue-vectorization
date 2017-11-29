@@ -1,0 +1,191 @@
+{
+    "comments": [
+        {
+            "author": null,
+            "body": "Please read SRV.7.1 of the servlet spec.\n\nAn option could be adding to disable URL-rewriting (noting that this would be non-spec compliant).\n\nRequests for enahncements that are accompanied by patches tend to get looked at sooner that those without.",
+            "date": "20080623T01:43:25",
+            "id": 0
+        },
+        {
+            "author": null,
+            "body": "Hi Mark,\n\nSpec 7.1 seems to say:\n\n- a compliant container may support URL encoded sessions (\"may be used\")\n- if it does support them, it has to use the path parameter \"jsessionid\"\n\nSo if a site decides to only use cookies because of security, it could be an interesting option to allow not even accepting session IDs which were URL encoded.\n\nWhat do you think?",
+            "date": "20080623T01:58:29",
+            "id": 1
+        },
+        {
+            "author": null,
+            "body": "SRV.7.1.4 is the important bit for us. If we disable URL-rewriting we break the spec. That said, I am not against it as an option (probably at the context level) providing it defaults to off.",
+            "date": "20080623T02:32:36",
+            "id": 2
+        },
+        {
+            "author": null,
+            "body": "Ahh, of course you are right. I'll see how easy an option is (I guess the incoming session path parameter and cookie is handled in the connector, and the context later doesn't know, where the id in the request came from ...).\n",
+            "date": "20080623T02:40:39",
+            "id": 3
+        },
+        {
+            "author": null,
+            "body": "Sorry, again I wrote partial nonsense: there is a request.isRequestedSessionIdFromURL() in the servlet API. So it is easy for us to know, but also for the webapp. One could thus prevent session fixation via the jsessionid path parameter by a simple filter, that invalidates the session, if request.isRequestedSessionIdFromURL() is true.",
+            "date": "20080623T02:46:58",
+            "id": 4
+        },
+        {
+            "author": null,
+            "body": "That would work. If we wanted to make this a Tomcat option the code around the context configuration option cookies is where I would start.",
+            "date": "20080623T02:56:29",
+            "id": 5
+        },
+        {
+            "author": null,
+            "body": "Created attachment 23284\nPatch to allow URL rewriting to be disabled\n\nAttaching a proposed patch for review.",
+            "date": "20090219T18:45:27",
+            "id": 6
+        },
+        {
+            "author": null,
+            "body": "It's worth mentioning that checking request.isRequestedSessionIdFromURL() won't stop session fixation attacks. The first request to Tomcat where a session is created will put the JSESSIONID in both the cookie and querystring. An attacker can shoulder-surf and read the JSESSIONID from the URL and craft their own JSESSIONID cookie.",
+            "date": "20090323T07:34:47",
+            "id": 7
+        },
+        {
+            "author": null,
+            "body": "(In reply to comment #7)\n> Created an attachment (id=23284) [details]\n> Patch to allow URL rewriting to be disabled\n> \n> Attaching a proposed patch for review.\n\nWe also need to make sure that \"jsessionid\" isn't accepted anymore if present.\n\nPlease take a look at CoyoteAdapter.parseSessionCookieId() and make the patch apply the same checks to parseSessionId() with context.getUrlRewriting().\n\nThanks!",
+            "date": "20090424T16:38:05",
+            "id": 8
+        },
+        {
+            "author": null,
+            "body": "Created attachment 23544\nUpdated patch\n\nGood catch, patch updated. \n\nAdded the check to CoyoteAdapter.parseSessionId() - had to move the mapping of the context up before parseSessionId() and had to move URI decoding before mapping the context. \n\nPatches without conflict with the httpOnly changes. \n\nChanged param in comment / interface from cookies to urlRewriting in Context & StandardContext.",
+            "date": "20090426T10:26:29",
+            "id": 9
+        },
+        {
+            "author": null,
+            "body": "The Servlet 3.0 spec (ie Tomcat 7 / trunk) includes this as part of the spec. Look for javax.servlet.SessionTrackingMode\n\nI think this will do everything you are looking for, although it does mean waiting for Tomcat 7.",
+            "date": "20090426T14:01:36",
+            "id": 10
+        },
+        {
+            "author": null,
+            "body": "(In reply to comment #11)\n> The Servlet 3.0 spec (ie Tomcat 7 / trunk) includes this as part of the spec.\n> Look for javax.servlet.SessionTrackingMode\n> \n> I think this will do everything you are looking for, although it does mean\n> waiting for Tomcat 7.\n\nSadly, Tomcat 7 may not be an option for many of us for a long time. I had to fight really hard for the switch to Tomcat 6. Please reconsider applying this small patch to Tomcat 6 because session fixation is a real threat. \n\nThough it's reassuring to have Tomcat abide by the rules by default, it wouldn't hurt to give users more options, even spec breaking options, especially when it comes to security. I'd rather have Tomcat warn me that the webapp is deployed into a non-compliant context than putting my client's data at risk.",
+            "date": "20090427T09:08:54",
+            "id": 11
+        },
+        {
+            "author": null,
+            "body": "At least where I work this is on a security checklist - having this in Tomcat 6 will lead to more adoption. This is something that ops / admins will look for in SpringSource tc Server as it is already configurable in Jetty, Weblogic, Resin, Glassfish, and WebSphere. It's a case where it is better to break the spec (not by default) for security purposes. I'd love to see it in 6.0.19 if possible. Running patched makes one second guess everything - I'd like to be running the same binaries as everyone else.",
+            "date": "20090427T13:36:42",
+            "id": 12
+        },
+        {
+            "author": null,
+            "body": "I think this option will be realy usefull to fight against session fixation problem. Looking forward to have this patched in tomcat 6.",
+            "date": "20090629T03:35:12",
+            "id": 13
+        },
+        {
+            "author": null,
+            "body": "I would urge to put Sellars' patch into the next Tomcat 6 version. It may not be the final weapon against session fixation (also a cookie-based attack seems possibile to me), but it is definitely good in fixing plenty of problems with search engines and ugly URLs...",
+            "date": "20090831T06:10:36",
+            "id": 14
+        },
+        {
+            "author": null,
+            "body": "I think we have mis-understood Session fixation. disabling URL re-write will not solve session fixation. \nPlease refer to http://www.owasp.org/index.php/Session_Fixation \nand http://rejeev.blogspot.com/2009/09/session-fixation_08.html \nThe correct solution for Session fixation is to create new Session cookie each time an authentication happens (discard old cookie and send new cookie to client after authentication).",
+            "date": "20090923T09:47:24",
+            "id": 15
+        },
+        {
+            "author": null,
+            "body": "Actually, preventing the use of the session ID in the URL goes a long way to preventing session fixation as it blocks the most easily exploited attack vectors. There would remain an issue with cookies but that should be limited to 3rd party cookies which may not be an issue for many situations.\n\nYou are correct that changing the session ID on authentication will resolve all session fixation attacks. However, changing the session ID may also cause application breakage. It may also cause internal breakage for things like session replication. There would need to be some very careful testing.\n\nWhilst each of these techniques can be achieved by web applications (some more easily than others), there is clearly some scope for adding options to Tomcat so the container handles this transparently.",
+            "date": "20090923T10:20:36",
+            "id": 16
+        },
+        {
+            "author": null,
+            "body": "A good document describing session fixation can be found here:\n\nhttp://www.acros.si/papers/session_fixation.pdf\n\nJust disabling the usage of jsessionid=.... in the URL does not solve the problem, it just closes one of many open doors.",
+            "date": "20091117T11:48:35",
+            "id": 17
+        },
+        {
+            "author": null,
+            "body": "At the risk of sounding like a troll, this is a pretty major security issue. Why is it only now being dealt with?\n\nTrue, it's not going prevent all session fixation, but as Mark Thomas mentioned, it goes a /long/ way, and makes it /much/ more difficult to pull off. You can no longer shoot a simple link to a user, and immediately have access to their session  \n\nRegardless, it does prevent Session Hijacking  - http://en.wikipedia.org/wiki/Session_hijacking - (esp. in applications that don't expire the session on the server). \n\nImagine you visit an application at a public PC, and a session ID is written to the URL. When that page is saved to the browser's cache, the URL is saved with the JSESSIONID parameter. A user could simply browse this cache, looking for valid session ids. \n\nSimilarly, the session id can be cached in a proxy cache, or be sniffed along the path. \n\nUntil this is fixed, i'm recommending the following:\n\nPrevent SessionID from being written in the URL. There\u2019s not an easy configuration option for this with Tomcat, unfortunately:\n   http://forum.springsource.org/archive/index.php/t-27259.html\n\nEnsure a new SessionID is set when the user successfully logs into the application. This will prevent an attack called Session Fixation: http://www.acros.si/papers/session_fixation.pdf \n\nImplement relatively quick expiring sessions on the server (30 mins or less)\n\nImplement HTTPS w/ secure cookies (to prevent sidejacking - and issue that will persist regardless of session id's in the url)\n\nMore info here: \n\nhttp://blog.0x0e.org/post/277275694/tomcats-jsessionid-in-the-url",
+            "date": "20091209T23:57:11",
+            "id": 18
+        },
+        {
+            "author": null,
+            "body": "i should be careful. it doesn't prevent all session hijacking. just certain use-cases. see comments above. \n\njcran",
+            "date": "20091209T23:59:01",
+            "id": 19
+        },
+        {
+            "author": null,
+            "body": "I have patched Tomcat 7 to change the session ID on authentication by default. The same patch has been proposed for 6.0.x and 5.5.x although the default may be not to change the session ID.\n\nWith this patch applied the situation is:\nTomcat 7\n- Not vulnerable by default since session ID changes on authentication\n- If this default is changed by the user (eg because the application can't handle a changing session ID) then the risks may be minimised by disabling session tracking via URL (a new feature in Servlet 3)\n\nTomcat 5 & 6\n- Can be prevented by enabling changing the session ID on authentication (if there is insufficient support for this to be enabled by default)\n- If the application can't handle a changing session ID then the risks may be minimised by writing a custom filter that checks request.isRequestedSessionIdFromURL() and responds accordingly (eg rejecting the request)\n\nWith these changes in place, although there will not be an option to disabled URL re-writing, I believe that there will be sufficient options to prevent session fixation which is, after all, the reason behind the request to be able to disable URL rewriting.",
+            "date": "20091211T09:45:21",
+            "id": 20
+        },
+        {
+            "author": null,
+            "body": "The patch has been applied to 6.0.x and will be included in 6.0.21 onwards.",
+            "date": "20091219T17:05:23",
+            "id": 21
+        },
+        {
+            "author": null,
+            "body": "Really pleased to see this integrated. Thank you Mark / Dillon. \n\nJust to be clear, we're waiting until Tomcat 7 to be able to remove the JSessionID from the url?",
+            "date": "20091230T07:36:31",
+            "id": 22
+        },
+        {
+            "author": null,
+            "body": "(In reply to comment #23)\n> Really pleased to see this integrated. Thank you Mark / Dillon. \n> \n> Just to be clear, we're waiting until Tomcat 7 to be able to remove the\n> JSessionID from the url?\n\nYes, but Tomcat 5 & 6 will change the session ID on authentication which addresses the root cause of the session fixation. With that fixed whether or not the session ID is in the URL is moot.",
+            "date": "20091230T07:50:25",
+            "id": 23
+        },
+        {
+            "author": null,
+            "body": "(In reply to comment #24)\n> ...\n> Yes, but Tomcat 5 & 6 will change the session ID on authentication which\n> addresses the root cause of the session fixation. With that fixed whether or\n> not the session ID is in the URL is moot.\n\nSo it appears that the session ID in the URL will be encrypted. I had to do some sniffing / digging myself - http://answers.google.com/answers/threadview/id/758002.html - but it's still bad practice, and introduces vulnerability. \n\nConsider the case of a proxy server, or of your own browser history. If you take a look, you'll see that jsessionid's are getting cached in the history, regardless of whether they were handed out after authentication or not. \n\nThat aside, there's no reason that the browser couldn't cache the entire response, thus making this whole point moot -- it just doesn't out of the box. Removing the session ID from the URL would prevent browser history caching of a Session ID.",
+            "date": "20091230T08:14:01",
+            "id": 24
+        },
+        {
+            "author": null,
+            "body": "(In reply to comment #25)\n> So it appears that the session ID in the URL will be encrypted. I had to do\n> some sniffing / digging myself -\n> http://answers.google.com/answers/threadview/id/758002.html - but it's still\n> bad practice, and introduces vulnerability. \n\nThis is FUD. There is no vulnerability here.\n\n> Consider the case of a proxy server, or of your own browser history. If you\n> take a look, you'll see that jsessionid's are getting cached in the history,\n> regardless of whether they were handed out after authentication or not. \n> \n> That aside, there's no reason that the browser couldn't cache the entire\n> response, thus making this whole point moot -- it just doesn't out of the box.\n> Removing the session ID from the URL would prevent browser history caching of a\n> Session ID.\n\nMore FUD.\n\nThe situations you describe are not vulnerabilities. Since Bugzilla is neither a support forum nor a discussion forum, if you wish to continue this discussion further, please do so on the users list.",
+            "date": "20091230T08:37:02",
+            "id": 25
+        },
+        {
+            "author": null,
+            "body": "The ability to change the session ID on authentication has been added to 5.5.x and will be included in 5.5.29 onwards.",
+            "date": "20100303T23:12:24",
+            "id": 26
+        },
+        {
+            "author": null,
+            "body": "Should changing the session id of an existing session object be treated the same as creating a new session i.e. should the session creation listeners be triggered?\n\nhttp://svn.apache.org/viewvc/tomcat/tc5.5.x/trunk/container/catalina/src/share/org/apache/catalina/session/ManagerBase.java?r1=903083&r2=918761 invokes setId() which in turn invokes the session creation listeners in tellNew().",
+            "date": "20100604T08:51:33",
+            "id": 27
+        },
+        {
+            "author": null,
+            "body": "*** Bug 40222 has been marked as a duplicate of this bug. ***",
+            "date": "20100825T15:01:59",
+            "id": 28
+        }
+    ],
+    "component": "Catalina",
+    "description": "please see wikipedia\nhttp://en.wikipedia.org/wiki/Session_fixation",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "45255",
+    "issuetypeClassified": "RFE",
+    "issuetypeTracker": "RFE",
+    "priority": "P1 enhancement",
+    "product": "Tomcat 5",
+    "project": "TOMCAT",
+    "summary": "support disable jsessionid from url against session fixation attacks",
+    "systemSpecification": "windows xp pc",
+    "version": "5.5.28"
+}

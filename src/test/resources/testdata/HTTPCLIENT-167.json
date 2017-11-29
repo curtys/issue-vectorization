@@ -1,0 +1,29 @@
+{
+    "comments": [
+        {
+            "author": "Michael Becke",
+            "body": "Created an attachment (id=5098)\nFix\n",
+            "date": "2003-03-02T01:12:51.000+0000",
+            "id": 0
+        },
+        {
+            "author": "Michael Becke",
+            "body": "I think the attached patch should fix this problem.  Please take a look.\n\nMike",
+            "date": "2003-03-02T01:14:26.000+0000",
+            "id": 1
+        }
+    ],
+    "component": "HttpClient (classic)",
+    "description": "The HttpConnection is released prematurely when doing SSL tunneling with the\nMultiThreadedHttpConnectionManager.  The ConnectMethod releases the connection\nin responseBodyConsumed() before it can be used by the real method.",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "HTTPCLIENT-167",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "Major",
+    "product": "HTTPCLIENT",
+    "project": "HTTPCLIENT",
+    "summary": "SSL Tunneling does not work with MultiThreadedHttpConnectionManager",
+    "systemSpecification": "other\nOther",
+    "version": "2.0 Alpha 3"
+}

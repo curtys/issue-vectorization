@@ -2,7 +2,8 @@ package ch.unibe.scg.curtys.vectorization.components;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author curtys
@@ -48,6 +49,16 @@ public class ErrorElementsTest {
 	private String text4 = "12:35:03.076 [main] INFO  ch.unibe.classifier.IssueClassifier\n"
 			+ "12:35:03.076 [main] INFO  ch.unibe.classifier.IssueClassifier";
 
+	private String text5 = "FileNotFoundException";
+
+	private String text6 = "Simply compare JspRuntimeContext.checkCompile(), this calls \n"
+			+ "ctxt.incrementRemoved() if a FileNotFoundException occur. JspServletWrapper \n"
+			+ "only set a 404 if a FileNotFoundException occur and finish.";
+
+	private String text7 = "catch (FileNotFoundException ex)";
+
+	private String text8 = "Unexpected SyntaxError for /^{(.*)\\}$/";
+
 
 	private ErrorElements vecElement = new ErrorElements();
 
@@ -57,8 +68,11 @@ public class ErrorElementsTest {
 		assertFalse(vecElement.matchesFilter(text2));
 		assertFalse(vecElement.matchesFilter(text3));
 		assertFalse(vecElement.matchesFilter(text4));
+		assertTrue(vecElement.matchesFilter(text5));
+		assertTrue(vecElement.matchesFilter(text6));
+		assertTrue(vecElement.matchesFilter(text7));
+		assertTrue(vecElement.matchesFilter(text8));
 	}
-
 
 
 }

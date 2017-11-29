@@ -1,0 +1,23 @@
+{
+    "comments": [
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Corrected. Many thanks, Xiaogang!\n\nOleg",
+            "date": "2005-04-24T00:45:44.000+0000",
+            "id": 0
+        }
+    ],
+    "component": "HttpClient (classic)",
+    "description": "In one of the testcases of HttpClient, TestExcetions, it reads:\n\n    // ------------------------------------------------------------------- Main\n    public static void main(String args[]) {\n        String[] testCaseName = { TestChallengeParser.class.getName() };\n        junit.textui.TestRunner.main(testCaseName);\n    }\n\n    // ------------------------------------------------------- TestCase Methods\n\n    public static Test suite() {\n        return new TestSuite(TestChallengeParser.class);\n    }\n\nWhere \"TestChallengeParser\" should be \"TestExcetions\".",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "HTTPCLIENT-450",
+    "issuetypeClassified": "OTHER",
+    "issuetypeTracker": "BUG",
+    "priority": "Major",
+    "product": "HTTPCLIENT",
+    "project": "HTTPCLIENT",
+    "summary": "TestExcetions never run",
+    "systemSpecification": "",
+    "version": "3.0 RC2"
+}

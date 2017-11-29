@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class OperationalElements extends VectorComponent {
 
 	public OperationalElements() {
-		super(new LogFilter(), new MethodNameFilter(), new ClassNameFilter());
+		super(new LogFilter(), new MethodNameFilter(), new ClassNameFilter(), new PackageNameFilter());
 	}
 
 	private static class LogFilter implements TextFilter {
@@ -46,6 +46,14 @@ public class OperationalElements extends VectorComponent {
 				return true;
 			}
 			return false;
+		}
+	}
+	private static class PackageNameFilter implements TextFilter {
+		@Override public boolean filter(String text) {
+			// will match package name with depth of at least 2 and only simple class names
+			Pattern pattern = Pattern.compile("(\\p{Lower}{2,}\\.){2,}(\\p{Upper}\\p{Lower}+)");
+			Matcher m = pattern.matcher(text);
+			return m.find();
 		}
 	}
 }

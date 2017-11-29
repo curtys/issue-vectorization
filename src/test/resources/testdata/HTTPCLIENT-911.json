@@ -1,0 +1,119 @@
+{
+    "comments": [
+        {
+            "author": "Ortwin Gl\u00fcck",
+            "body": "You are referring to underscores in DNS names. Yes, they are illegal. And yes, MS allows them for Windows host names, which doesn't make them any more legal in DNS.\r\n\r\nAnyway, the NPE is ugly and we should probably issue a better exception.",
+            "date": "2010-02-09T21:00:47.225+0000",
+            "id": 0
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Are you sure you get NullPointerException, not IllegalArgumentException? Can you post the exception stack trace?\r\n\r\nOleg",
+            "date": "2010-02-09T21:54:22.220+0000",
+            "id": 1
+        },
+        {
+            "author": "Ziv Horesh",
+            "body": "Stack trace:\njava.lang.IllegalArgumentException: Host name may not be null\n    at org.apache.http.HttpHost.<init>(HttpHost.java:83)\n    at\norg.apache.http.impl.client.AbstractHttpClient.determineTarget(AbstractHttpClient.java:497)\n    at\norg.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:487)\n    at\norg.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:465)\n    at\norg.apache.shindig.gadgets.http.BasicHttpFetcher.fetch(BasicHttpFetcher.java:281)\n    ....\n\nOleg, You are right about the exception, it is the message that through me\noff the cause of the problem.\n\n\n\n\n",
+            "date": "2010-02-09T22:08:31.807+0000",
+            "id": 2
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Are you sure this has anything to do with the underscore in domain name? The following test throws a UnknownHostException for me:\r\n---\r\nHttpHost targetHost = new HttpHost(\"www.what_ever.com\", 80, \"http\"); \r\nDefaultHttpClient httpclient = new DefaultHttpClient();\r\nBasicHttpContext localcontext = new BasicHttpContext();\r\n\r\nHttpGet httpget = new HttpGet(\"/\");\r\nHttpResponse response = httpclient.execute(targetHost, httpget, localcontext);\r\n\r\nSystem.out.println(response.getStatusLine());\r\n\r\nHttpEntity entity = response.getEntity();\r\nif (entity != null) {\r\n    entity.consumeContent();\r\n}\r\n---\r\n\r\nException in thread \"main\" java.net.UnknownHostException: www.what_ever.com\r\n\tat java.net.PlainSocketImpl.connect(PlainSocketImpl.java:177)\r\n\tat java.net.SocksSocketImpl.connect(SocksSocketImpl.java:366)\r\n\tat java.net.Socket.connect(Socket.java:520)\r\n\tat org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:123)\r\n---\r\n\r\nI suspect you may be trying to execute a request with a relative request URI, in which case the IllegalArgumentException you are getting seems reasonable.\r\n\r\nOleg\r\n",
+            "date": "2010-02-09T22:58:03.676+0000",
+            "id": 3
+        },
+        {
+            "author": "Ziv Horesh",
+            "body": "Try this:\n\n    HttpClient client = new DefaultHttpClient();\n    HttpUriRequest httpMethod = new HttpGet(\"http://0.test_file.com/data\");\n    org.apache.http.HttpResponse response = client.execute(httpMethod);\n\n\n\n\n\n",
+            "date": "2010-02-10T00:16:30.639+0000",
+            "id": 4
+        },
+        {
+            "author": "Ziv Horesh",
+            "body": "Oleg, thanks for the quick responds.\nActually doing your way - by using the overloaded execute with the request\nalready parsed seem to work :-)\nSo it seems that underscores are already supported as long as java.net.Uri\nis not used on the way...\n\nI might just solve it this way then.\n\nThanks!\nZiv\n\n\n\n\n",
+            "date": "2010-02-10T01:36:31.373+0000",
+            "id": 5
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "The cause of the problem is a very stupid behavior of java.net.URI class. Apparently the URI constructor quietly ignores the host it considers invalid and simply uses null instead.\r\n\r\nI am attaching a patch that should help handle the situation a bit more gracefully.\r\n\r\nOleg\r\n---\r\nDefaultHttpClient httpclient = new DefaultHttpClient();\r\n\r\nURI uri = new URI(\"http://0.test_file.com/data\");\r\nSystem.out.println(\"Target scheme: \" + uri.getScheme());\r\nSystem.out.println(\"Target host: \" + uri.getHost());\r\nSystem.out.println(\"Target port: \" + uri.getPort());\r\n\r\nHttpGet httpget = new HttpGet(uri);\r\n\r\nHttpResponse rsp = httpclient.execute(httpget);\r\nHttpEntity entity = rsp.getEntity();\r\n\r\nSystem.out.println(\"----------------------------------------\");\r\nSystem.out.println(rsp.getStatusLine());\r\nif (entity != null) {\r\n    System.out.println(EntityUtils.toString(entity));\r\n}\r\n---\r\n\r\n---\r\nTarget scheme: http\r\nTarget host: null\r\nTarget port: -1\r\nException in thread \"main\" org.apache.http.client.ClientProtocolException: URI does not specify a valid host name: http://0.test_file.com/data\r\n\tat org.apache.http.impl.client.AbstractHttpClient.determineTarget(AbstractHttpClient.java:638)\r\n\tat org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:624)\r\n\tat org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:602)\r\n\tat tests.ClientExecuteDirect.main(ClientExecuteDirect.java:58)\r\n---",
+            "date": "2010-02-10T09:49:09.700+0000",
+            "id": 6
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Patch checked in\r\n\r\nOleg",
+            "date": "2010-02-12T12:47:41.669+0000",
+            "id": 7
+        },
+        {
+            "author": "Ziv Horesh",
+            "body": "FYI - I don't think it totally solve the problem.\nThere is a similar case in parsing the results in\nDefaultRequestDirector.handleResponse\nI get NPE in new HttpPost because the host is null.\n\n----------------------\n            URI uri = this.redirectHandler.getLocationURI(response,\ncontext);\n\n            HttpHost newTarget = new HttpHost(\n                    uri.getHost(),\n                    uri.getPort(),\n                    uri.getScheme());\n----------------------\n\nThanks\nZiv\n\n\nOn Wed, Feb 10, 2010 at 1:50 AM, Oleg Kalnichevski (JIRA)\n\n",
+            "date": "2010-02-26T01:06:30.626+0000",
+            "id": 8
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Added a check for the host being null\r\n\r\nOleg",
+            "date": "2010-02-26T11:04:44.263+0000",
+            "id": 9
+        },
+        {
+            "author": "Mingfai Ma",
+            "body": "Just come across this issue myself. second level domain name may not use underscore but there are websites in real life use underscore in their subdomain, and it doesn't make sense if we can't make connection to them with a Java library while people can connect to it with browser. Ideally, httpclient should just handle those URL with underscore, maybe we shouldn't rely on URI.\r\n\r\nreference:\r\nhttp://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6587184\r\n",
+            "date": "2010-07-27T14:24:41.916+0000",
+            "id": 10
+        },
+        {
+            "author": "Mingfai Ma",
+            "body": "added HTTPCLIENT-970",
+            "date": "2010-07-27T15:37:54.823+0000",
+            "id": 11
+        },
+        {
+            "author": "Sebb",
+            "body": "Current code does not work if there is a colon in the path but no colon in the host part.\r\n\r\nThis appears to have been caused by the following change:\r\n\r\nhttp://svn.apache.org/viewvc/httpcomponents/httpclient/trunk/httpclient/src/main/java/org/apache/http/impl/client/AbstractHttpClient.java?r1=980937&r2=980936&pathrev=980937\r\n\r\nwhich was presumably intended to improve underscore support?\r\n\r\nThe method currently has no unit tests - previously it was simple enough not to need them, but now I think they are needed.\r\n\r\nThis requires changing the method from private to package-protected - which should not cause any problems as the method does not change any external fields.\r\n",
+            "date": "2010-12-13T18:55:14.181+0000",
+            "id": 12
+        },
+        {
+            "author": "Sebb",
+            "body": "Unlike URI.getHost(), the determineTarget method also does not handle the authority (user:pass) part of the URI.\r\n\r\nSince the code now tries to allow for short-comings in the java URI implementation, perhaps it deserves to be promoted to a public utility routine.",
+            "date": "2010-12-13T19:11:40.789+0000",
+            "id": 13
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Sebastian\r\n\r\nThis bit of code comes from HTTPCLIENT-970, which I committed it by mistake with a completely unrelated change set. It must be removed immediately.\r\n\r\nOleg",
+            "date": "2010-12-13T19:50:50.262+0000",
+            "id": 14
+        },
+        {
+            "author": "Sebb",
+            "body": "OK, I'll remove it.\r\n\r\nIt looks as though getAuthority() can be used even if the host part contains an underscore.\r\n\r\nSo one approach might be to use getHost() as before; if that returns null, then use getAuthority(), and strip off up to the \"@\" if present.\r\n\r\nAt least if we use getHost() when we can, there will be fewer chances of bugs...\r\n",
+            "date": "2010-12-13T20:23:59.793+0000",
+            "id": 15
+        },
+        {
+            "author": "Sebb",
+            "body": "Appears now to be fixed.",
+            "date": "2010-12-14T00:55:46.770+0000",
+            "id": 16
+        }
+    ],
+    "component": "HttpClient (classic)",
+    "description": "\r\nWhen calling on HttpClient.execute with a url that contain underscore ('_'), you get NullPointerException.\r\nTracing it down show that java.net.Uri complains that it is illegal name. Which is true according to the RFC.\r\nBut it seems that most browser allow it, and some companies support it.\r\n\r\nI think HttpClient should either support underscores, or atleast provide a better exception.\r\n\r\n",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "HTTPCLIENT-911",
+    "issuetypeClassified": "IMPROVEMENT",
+    "issuetypeTracker": "IMPROVEMENT",
+    "priority": "Minor",
+    "product": "HTTPCLIENT",
+    "project": "HTTPCLIENT",
+    "summary": "Support underscore in domain name, or provide better exception",
+    "systemSpecification": null,
+    "version": "4.0.1"
+}

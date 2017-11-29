@@ -1,0 +1,35 @@
+{
+    "comments": [
+        {
+            "author": null,
+            "body": "The second issue has been fixed - see bug 32429\n\nThe first issue has been fixed in CVS for 4.1.x and 5.5.x\n\nThanks for the patch.\n\nIn future please try not to duplicate reports across multiple bugzilla entries \nas it makes tracking which bugs have been fixed and which ones haven't a lot \nmore difficult.",
+            "date": "20041129T23:09:39",
+            "id": 0
+        },
+        {
+            "author": null,
+            "body": "Sorry about the duplication.  Any chance these will make it into 5.0.30?",
+            "date": "20041129T23:13:43",
+            "id": 1
+        },
+        {
+            "author": null,
+            "body": "Now 5.5.x is stable, I wasn't planning to port the CGI stuff back to 5.0.30.",
+            "date": "20041129T23:45:31",
+            "id": 2
+        }
+    ],
+    "component": "Servlets:CGI",
+    "description": "-------------------------------------- Begin At Line 1668 \nif(contentStream != null) {\n      commandsStdIn = new BufferedOutputStream(proc.getOutputStream());\n      proc.getOutputStream().write(contentStream.toByteArray());\n      commandsStdIn.flush();\n      commandsStdIn.close();\n}\n-------------------------------------- End\nshould probably be:\n-------------------------------------- Begin At Line 1668 \nif(contentStream != null) {\n      commandsStdIn = new BufferedOutputStream(proc.getOutputStream());\n      commandsStdIn.write(contentStream.toByteArray());\n      commandsStdIn.flush();\n      commandsStdIn.close();\n}\n-------------------------------------- End\n\n\nLine 1793:\n-------------------------------------- Begin At Line Line 1793\nwhile ((line = rdr.readLine()) != null) {\n      log(\"runCGI (stderr):\" +  line) ;\n}\nlineCount++ ;\n-------------------------------------- End\nshould probably be:\n-------------------------------------- Begin At Line Line 1793\nwhile ((line = rdr.readLine()) != null) {\n      log(\"runCGI (stderr):\" +  line) ;\n      lineCount++ ;\n}\n-------------------------------------- End\n\nThe first issue is part of bug 32430, except the large file stuff looks fixed.\nThe second issue is bug 32429",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "32431",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "P2 normal",
+    "product": "Tomcat 5",
+    "project": "TOMCAT",
+    "summary": "Misc errors in CGIServlet",
+    "systemSpecification": "windows 2000 pc",
+    "version": "5.0.30"
+}

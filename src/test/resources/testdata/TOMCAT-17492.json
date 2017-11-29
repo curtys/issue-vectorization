@@ -1,0 +1,16 @@
+{
+    "comments": [],
+    "component": "Jasper",
+    "description": "Interestingly enough, if the same situation occurs within a Tag file in XML\nsyntax, the behavior is as expected and no declaration is generated.",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "17492",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "P3 major",
+    "product": "Tomcat 5",
+    "project": "TOMCAT",
+    "summary": "If the omit-xml-declaration attribute of jsp:output is 'true' or 'yes' in the context of a JSP document, the xml declaration is still generated.",
+    "systemSpecification": "",
+    "version": "Nightly Build"
+}

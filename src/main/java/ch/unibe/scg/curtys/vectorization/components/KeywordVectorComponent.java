@@ -4,25 +4,28 @@ import ch.unibe.scg.curtys.vectorization.components.utils.KeywordRepository;
 import ch.unibe.scg.curtys.vectorization.components.utils.TextFilter;
 import ch.unibe.scg.curtys.vectorization.issue.Issue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author curtys
  */
 public class KeywordVectorComponent extends VectorComponent {
 
-	private KeywordRepository repository;
+	private List<KeywordRepository> repositories = new ArrayList<>();
 
 	public KeywordVectorComponent(String... keywords) {
-		repository = new KeywordRepository();
+		KeywordRepository repository = new KeywordRepository();
 		repository.addAll(Arrays.asList(keywords));
+		repositories.add(repository);
 	}
 
 	public KeywordVectorComponent(TextFilter[] filters, String... keywords) {
 		super(filters);
-		repository = new KeywordRepository();
+		KeywordRepository repository = new KeywordRepository();
 		repository.addAll(Arrays.asList(keywords));
-
+		repositories.add(repository);
 	}
 
 	@Override
@@ -33,6 +36,10 @@ public class KeywordVectorComponent extends VectorComponent {
 	}
 
 	protected boolean matchesRepository(String text) {
-		return repository.hasMatchingKeyword(text);
+		return repositories.stream().anyMatch(repository -> repository.hasMatchingKeyword(text));
+	}
+
+	public void addRepository(KeywordRepository repository) {
+		repositories.add(repository);
 	}
 }

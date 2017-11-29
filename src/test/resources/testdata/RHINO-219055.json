@@ -1,0 +1,41 @@
+{
+    "comments": [
+        {
+            "author": "igor@mir2.org",
+            "body": "Created attachment 131344\nImplementation\n\nThe essential patch part moves creation of script object represented by\nNativeError to ScriptRuntime.getCatchObject and modifies EcmaError constructor\nto take explicit error name and message that will be used when constructing\nNativeError. The old form is preserved for compatibility but marked as\ndeprecated. \n\nThe rest of the patch updates code not to pass scope argument when throwing\nEcmaError instances which allowed to simplify many usages of the error related\nroutines. In addition patch moved functions to create EcmaError instances from\nNativeGlobal to ScriptRuntime to remove dependence on that class from optimizer\nand regexps packages which could allow at some point in future (probably a\ndistant point due to backward compatibility) to make the class package private.",
+            "date": "20030912T17:27:28",
+            "id": 0
+        },
+        {
+            "author": "igor@mir2.org",
+            "body": "I committed the changes.",
+            "date": "20030916T16:09:05",
+            "id": 1
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "Rubber-stamp vrfy",
+            "date": "20030916T18:28:25",
+            "id": 2
+        },
+        {
+            "author": "igor@mir2.org",
+            "body": "Trageting as resolved against 1.5R5",
+            "date": "20040213T11:36:06",
+            "id": 3
+        }
+    ],
+    "component": "Core",
+    "description": "Currently Rhino always creates script object representing EcmaError for each\nEcmaError it throws.  But such object is only necessary if script contains a\ncatch statements that catches the exception. Moreover, if creation of such\nobject throws an exception on its own which is quite possible if script mutates\nError constructors, then Java application will get the secondary exception which\nis rather inconvenient.\n\nIn addition, such delayed creation of script object would allow to simplify\ninternal API since it removes need to pass a scope object argument if such\nobject currently is only necessary to construct script error instances.  Such\nsituation is present currently in code that implements script compilation and\nvarious ScriptRuntime routines.",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "219055",
+    "issuetypeClassified": "IMPROVEMENT",
+    "issuetypeTracker": "RFE",
+    "priority": "-- enhancement",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "Delay creation of script object for EcmaError until execution of script catch",
+    "systemSpecification": "",
+    "version": "other"
+}

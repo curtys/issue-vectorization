@@ -1,0 +1,53 @@
+{
+    "comments": [
+        {
+            "author": null,
+            "body": "Created attachment 19615\nPatch that synchronizes initialization in 'JspConfig.init'",
+            "date": "20070220T13:44:20",
+            "id": 0
+        },
+        {
+            "author": null,
+            "body": "No, this additional sync will not be added. The recompilation checks should be\nsufficiently synchronized already.",
+            "date": "20070220T14:05:41",
+            "id": 1
+        },
+        {
+            "author": null,
+            "body": "For each page, compilation is synchronized, but it is not synchronized between\npages. This is typically not a problem because most of the state for different\npages isn't shared, but the 'JspConfig' instance is via the shared\n'EmbeddedServletOptions' instance. \n\nHere is the top of the stack when 'JspConfig.init()' is first called:\n\nJspConfig.init() line: 202\t\nJspConfig.findJspProperty(String) line: 254\t\nAntCompiler(Compiler).generateJava() line: 112\t\nAntCompiler(Compiler).compile(boolean, boolean) line: 295\t\nAntCompiler(Compiler).compile(boolean) line: 276\t\nAntCompiler(Compiler).compile() line: 264\t\nJspCompilationContext.compile() line: 563\t\nJspServletWrapper.service(HttpServletRequest, HttpServletResponse, boolean)\nline: 305\nJspServlet.serviceJspFile(HttpServletRequest, HttpServletResponse, String,\nThrowable, boolean) line: 314\t\nJspServlet.service(HttpServletRequest, HttpServletResponse) line: 264\t\nJspServlet(HttpServlet).service(ServletRequest, ServletResponse) line: 861\t\n\nThe only synchronization that occurs in that stack is in\n'JspServletWrapper.service', which synchronizes on 'this'. Each page has a\nseparate 'JspServletWrapper' instance, but all instances share a common\n'EmbeddedServletOptions', which contains the 'JspConfig'. Thus, the\nsynchronization does not protect against multiple pages being compiled\nsimultaneously and calling 'init()' on the same 'JspConfig' instance at the same\ntime.\n\n",
+            "date": "20070220T16:15:38",
+            "id": 2
+        },
+        {
+            "author": null,
+            "body": "Thanks for the report and the analysis.\n\nThis has been fixed in trunk and proposed for 5.5.x and 6.0.x.",
+            "date": "20090717T13:16:14",
+            "id": 3
+        },
+        {
+            "author": null,
+            "body": "This has been fixed for 5.5.x and will be included in 5.5.29 onwards.",
+            "date": "20090812T04:32:19",
+            "id": 4
+        },
+        {
+            "author": null,
+            "body": "This has been fixed in 6.0.x and will be included in 6.0.21 onwards.",
+            "date": "20090812T04:41:23",
+            "id": 5
+        }
+    ],
+    "component": "Jasper",
+    "description": "The 'JspConfig.init()' method can be called simultaneously from multiple threads\nat the same time, but it is not synchronized, so the initialization code in the\nbody can be executed simultaneously by multiple threads. This can lead to a\n'jsp-property-group' configuration being added twice to the 'jspProperties'\nvector. The symptom we noticed was that on some runs, the contents of the\n'include-prelude' and 'include-coda' elements would be included twice in all\ncompiled jsp files.\n\nThis bug is hard to reproduce because it requires a run where the first thing\nthat happens is that multiple jsp files are requested simultaneously. However,\nafter adding a field containing a synchronization object and synchronizing on it\nacross the \n\nif (!initialized) {\n...\n}\n\nblock, we haven't seen the problem reoccur.",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "41661",
+    "issuetypeClassified": "IMPROVEMENT",
+    "issuetypeTracker": "BUG",
+    "priority": "P2 normal",
+    "product": "Tomcat 5",
+    "project": "TOMCAT",
+    "summary": "JspConfig.init() is not synchronized",
+    "systemSpecification": "other other",
+    "version": "5.5.20"
+}

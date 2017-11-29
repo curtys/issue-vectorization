@@ -1,0 +1,29 @@
+{
+    "comments": [
+        {
+            "author": "Yonik Seeley",
+            "body": "attaching patch",
+            "date": "2005-10-13T12:49:13.000+0000",
+            "id": 0
+        },
+        {
+            "author": "Yonik Seeley",
+            "body": "Also deferred creation of SegmentMergeInfo.postings (TermPositions) for another 15% gain.\n\nSame index and query were used to test, but this time 100,000 query iterations.\n\ndefer docMap only:\n  indexing time = 121,734 ms\n  querying time = 18,266 ms\n\ndefer docMap and postings:\n  indexing time = 120,860 ms\n  querying time = 15,625 ms\n",
+            "date": "2005-10-14T12:25:09.000+0000",
+            "id": 1
+        }
+    ],
+    "component": "",
+    "description": "Since creating the docMap is expensive, and it's only used during segment merging, not searching, defer creation until it is requested.\n\nSegmentMergeInfo is also used in MultiTermEnum, the term enumerator for a MultiReader.  TermEnum is used by queries such as PrefixQuery, RangeQuery, WildcardQuery, as well as RangeFilter, DateFilter, and sorting the first time (filling the FieldCache).\n\nPerformance Results:\n  A simple single field index with 555,555 documents, and 1000 random deletions was queried 1000 times with a PrefixQuery matching a single document.\n\nPerformance Before Patch:\n  indexing time = 121,656 ms\n  querying time = 58,812 ms\n\nPerformance After Patch:\n  indexing time = 121,000 ms\n  querying time =         598 ms\n\nA 100 fold increase in query performance!\n\nAll lucene unit tests pass.",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "LUCENE-454",
+    "issuetypeClassified": "IMPROVEMENT",
+    "issuetypeTracker": "IMPROVEMENT",
+    "priority": "Major",
+    "product": "LUCENE",
+    "project": "LUCENE",
+    "summary": "lazily create SegmentMergeInfo.docMap",
+    "systemSpecification": "",
+    "version": ""
+}

@@ -1,0 +1,41 @@
+{
+    "comments": [
+        {
+            "author": "stevekweiss@yahoo.com",
+            "body": "Created attachment 251947\nPatch proposal",
+            "date": "20070118T19:15:11",
+            "id": 0
+        },
+        {
+            "author": "szegedia@freemail.hu",
+            "body": "Fix committed to CVS HEAD.",
+            "date": "20070123T02:20:48",
+            "id": 1
+        },
+        {
+            "author": "szegedia@freemail.hu",
+            "body": "*** Bug 333168 has been marked as a duplicate of this bug. ***",
+            "date": "20070123T02:21:56",
+            "id": 2
+        },
+        {
+            "author": "norrisboyd@gmail.com",
+            "body": "Adding target milestone of 1.6R6 based on the date this bug was resolved FIXED.",
+            "date": "20070518T15:11:41",
+            "id": 3
+        }
+    ],
+    "component": "Core",
+    "description": "User-Agent:       Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322)\nBuild Identifier: Rhino 1.6R5\n\nBug 333168 has the description.  Attached is a proposed patch, based on the second proposal in 333168's bug report.\n\nReproducible: Always\n\nSteps to Reproduce:\n1.\n2.\n3.",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "367385",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "-- normal",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "[Fix] defineClass's inheritance mapping is broken for abstract class subclasses",
+    "systemSpecification": "windows xp x86",
+    "version": "other"
+}

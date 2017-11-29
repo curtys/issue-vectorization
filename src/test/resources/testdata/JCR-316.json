@@ -1,0 +1,23 @@
+{
+    "comments": [
+        {
+            "author": "Marcel Reutegger",
+            "body": "Thanks for the patch.\n\nCommitted it in svn revision: 375218",
+            "date": "2006-02-06T17:36:22.000+0000",
+            "id": 0
+        }
+    ],
+    "component": "",
+    "description": "- Fixed a little mistake: changed org.apache.jackrabbit.core.query..RTFTextFilter to org.apache.jackrabbit.core.query.RTFTextFilter\n\n- Added the OpenOfficeTextFilter to the sample configuration line.",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "JCR-316",
+    "issuetypeClassified": "OTHER",
+    "issuetypeTracker": "IMPROVEMENT",
+    "priority": "Trivial",
+    "product": "JACKRABBIT",
+    "project": "JACKRABBIT",
+    "summary": "Fixed README.txt on textfilters project",
+    "systemSpecification": "",
+    "version": ""
+}

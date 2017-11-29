@@ -1,0 +1,77 @@
+{
+    "comments": [
+        {
+            "author": "Simon Willnauer",
+            "body": "diff file - diff since last revision \nLots of changes due to some refactoring",
+            "date": "2006-06-12T04:47:38.000+0000",
+            "id": 0
+        },
+        {
+            "author": "Simon Willnauer",
+            "body": "Added Authentication component.\nXSD Schema for configuration files.\nRefactoring \nTestcases\n\n@Yonik & Doug\n\nPlease commit this patch soon!\nthanks simon",
+            "date": "2006-06-21T18:41:12.000+0000",
+            "id": 1
+        },
+        {
+            "author": "Simon Willnauer",
+            "body": "Last-Modified Header support\nRecovering component for lucene storage\nfixed update / insert bugs\n\n",
+            "date": "2006-06-26T07:06:34.000+0000",
+            "id": 2
+        },
+        {
+            "author": "Yonik Seeley",
+            "body": "I tried to apply 25.06.06.diff, but it doesn't apply cleanly.\n\npatching file gdata-server/src/java/org/apache/lucene/gdata/server/registry/Comp\nonent.java\ncan't find file to patch at input line 14728\nPerhaps you used the wrong -p or --strip option?\nThe text leading up to this was:\n--------------------------\n|Index: gdata-server/src/java/org/apache/lucene/gdata/server/registry/ProvidedServiceConfig.java\n|===================================================================\n|--- gdata-server/src/java/org/apache/lucene/gdata/server/registry/ProvidedServiceConfig.java   (revision 413530)\n|+++ gdata-server/src/java/org/apache/lucene/gdata/server/registry/ProvidedServiceConfig.java   (working copy)\n--------------------------\nFile to patch:",
+            "date": "2006-06-26T22:47:06.000+0000",
+            "id": 3
+        },
+        {
+            "author": "Simon Willnauer",
+            "body": "I'd did some renaming due to some refactoring. That caused the problem.\nThisone works.\n\nThanks Yonik.",
+            "date": "2006-06-27T01:04:18.000+0000",
+            "id": 4
+        },
+        {
+            "author": "Simon Willnauer",
+            "body": "Three more required libs for reading configuration files.\n\n--> apache commons digester",
+            "date": "2006-06-27T01:07:03.000+0000",
+            "id": 5
+        },
+        {
+            "author": "Yonik Seeley",
+            "body": "OK, you caught me in time Simon :-)  \nIt all seems to work, and I just committed it.",
+            "date": "2006-06-27T01:14:11.000+0000",
+            "id": 6
+        },
+        {
+            "author": "Simon Willnauer",
+            "body": "Well ;) gotcha! \n\nbut you took the wrong file. \n\nTake No.3 for good ;)\n\n\n\ngood trip to Dublin!!",
+            "date": "2006-06-27T01:56:01.000+0000",
+            "id": 7
+        },
+        {
+            "author": "Simon Willnauer",
+            "body": "This issue is resolved could anyone close / resovle this.\n\nthanks simon",
+            "date": "2006-07-30T12:41:04.000+0000",
+            "id": 8
+        },
+        {
+            "author": "Yonik Seeley",
+            "body": "resolving.",
+            "date": "2006-07-30T14:24:30.000+0000",
+            "id": 9
+        }
+    ],
+    "component": "core/other",
+    "description": "Some Improvements to the GData Server.\nCRUD actions for Entries implemented / tested \nStorageComponent storing entries / feeds / users\nDynamic Feed elements like links added.\nDecoupled all server components (storage / ReqeustHandler etc) using lookup service\n\nAdded some JavaDoc ",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "LUCENE-598",
+    "issuetypeClassified": "RFE",
+    "issuetypeTracker": "RFE",
+    "priority": "Minor",
+    "product": "LUCENE",
+    "project": "LUCENE",
+    "summary": "GData Server MileStone 1 Revision",
+    "systemSpecification": null,
+    "version": ""
+}

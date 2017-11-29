@@ -1,0 +1,41 @@
+{
+    "comments": [
+        {
+            "author": null,
+            "body": "Assuming that you meant to file this against Tomcat 3 (which is where \no.a.t.m.aaa.RealmBase lives :), this is fixed now in the CVS.\n\nThe Realm now has a 'digestEncoding' attribute that can be used to specify the \ncharset (defaulting to the default charset, for BC).\n\nLeaving the bug open, incase you really did mean Tomcat 5.",
+            "date": "20041008T02:59:47",
+            "id": 0
+        },
+        {
+            "author": null,
+            "body": "Yes, you are right, I mean Tomcat 5 and read the 5.5 doc but the Tomcat 3 source. \nHowever, now I also checked the 5.5 source, and the code - so the problem - is the \nsame. The same fix could be equally useful for Tomcat 5 too.",
+            "date": "20041008T06:59:31",
+            "id": 1
+        },
+        {
+            "author": null,
+            "body": "Done for Tomcat 5.5(.4), doing for 5.0.(30) next.",
+            "date": "20041027T16:01:46",
+            "id": 2
+        },
+        {
+            "author": null,
+            "body": "Done -- thanks for submitting this issue.",
+            "date": "20041027T16:41:00",
+            "id": 3
+        }
+    ],
+    "component": "Catalina",
+    "description": "The documentation specifies the digest algorithms which can be used to avoid \nstoring plain text passwords. Unfortunately passwords are strings and the input of \ndigest algorithms are bytes, but the conversion between the two - the charset \nencoding to be used - is not specified. \n\nLooking at the source of org.apache.tomcat.modules.aaa.RealmBase it turns out that \nit uses the system default charset encoding, which is usually a bad idea for a \nserver software. E.g. moving the server to another machine or using a second \nserver with different locale renders the user database invalid. \n\nThe best solution would be to explicitly specify an encoding, e.g. UTF-8. But at \nthis moment this may break existing configurations. Another solution is to add an \nadditional parameter to each realm implementation and the command line utility, in \nwhich the administrator can specify the encoding. The default of this parameter \nmust be \"encode using the platform's default charset\", in order to not break \ncompatiblity.",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "31592",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "P3 minor",
+    "product": "Tomcat 5",
+    "project": "TOMCAT",
+    "summary": "storage format of digested realm passwords depends on default charset",
+    "systemSpecification": "other other",
+    "version": "5.0.0"
+}

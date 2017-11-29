@@ -14,9 +14,11 @@ public class LowPriorityElement extends VectorComponent {
 	@Override public int value(Issue issue) {
 		String priority = issue.getPriority();
 		if (StringUtils.isBlank(priority)) return FALSE_VAL;
-		Pattern pattern = Pattern.compile("(minor|low|normal|P3|P4|P5)",
+		Pattern p1 = Pattern.compile("(trivial|minor|low|normal|P3|P4|P5)",
 				Pattern.CASE_INSENSITIVE);
-		Matcher matcher = pattern.matcher(priority);
-		return matcher.find() ? TRUE_VAL : FALSE_VAL;
+		Matcher m1 = p1.matcher(priority);
+		Pattern p2 = Pattern.compile("(high|highest|major|P1|P2)", Pattern.CASE_INSENSITIVE);
+		Matcher m2 = p2.matcher(priority);
+		return m1.find() && !m2.find() ? TRUE_VAL : FALSE_VAL;
 	}
 }

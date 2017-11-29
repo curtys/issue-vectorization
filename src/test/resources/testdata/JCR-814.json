@@ -1,0 +1,41 @@
+{
+    "comments": [
+        {
+            "author": "Tobias Bocanegra",
+            "body": "fixed.",
+            "date": "2007-03-28T10:17:10.283+0000",
+            "id": 0
+        },
+        {
+            "author": "Martijn Hendriks",
+            "body": "This breaks the MS-SQL bundle persistence manager, since it does not detect an existing schema. The fix is to override the checkSchema in the OracleBundlePersistenceManager, with the fix of Tobias for the metaData.getTables call. I guess that the issue should be reopenend, but I am not allowed to do that.\n\nRegards,\n\nMartijn Hendriks\n\n",
+            "date": "2007-03-29T08:53:11.308+0000",
+            "id": 1
+        },
+        {
+            "author": "Tobias Bocanegra",
+            "body": "due to issue mentioned above.",
+            "date": "2007-03-29T11:45:10.038+0000",
+            "id": 2
+        },
+        {
+            "author": "Tobias Bocanegra",
+            "body": "Separated the table-existence-check from the schema creation and only override it in oracle persistence manager.\n\nCommitted revision 523680.\n",
+            "date": "2007-03-29T12:04:55.163+0000",
+            "id": 3
+        }
+    ],
+    "component": "jackrabbit-core",
+    "description": "When using the OracleBundlePersistenceManager there is an issue when two users use the same database for persistence. In  that case, the checkSchema() method of the BundleDbPersistenceManager  does not work like it should. More precisely, the call \"metaData.getTables(null,  null, tableName, null);\" will also includes table names of other  schemas/users. Effectively, only the first user of a database is able to create  the schema.\n\nprobably same issue as here: JCR-582",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "JCR-814",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "Minor",
+    "product": "JACKRABBIT",
+    "project": "JACKRABBIT",
+    "summary": "Oracle bundle PM fails checking schema if 2 users use the same database",
+    "systemSpecification": null,
+    "version": ""
+}

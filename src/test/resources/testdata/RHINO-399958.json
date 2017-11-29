@@ -1,0 +1,23 @@
+{
+    "comments": [
+        {
+            "author": "szegedia@freemail.hu",
+            "body": "Thanks - fixed it in CVS HEAD.\n\nChecking in src/org/mozilla/javascript/Context.java;\n/cvsroot/mozilla/js/rhino/src/org/mozilla/javascript/Context.java,v  <--  Context.java\nnew revision: 1.262; previous revision: 1.261\ndone\n",
+            "date": "20071023T15:30:45",
+            "id": 0
+        }
+    ],
+    "component": "Core",
+    "description": "User-Agent:       Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.8.1.7) Gecko/20070914 Firefox/2.0.0.7\nBuild Identifier: 1.6R7\n\nCurrent implementation of Context.compileImpl method (in 1.6R7) only checks security controller in the current context instance. Ideally, it should check for global security controller as well.\n\nThe following lines: \n\n        if (securityDomain != null && securityController == null) {\n            throw new IllegalArgumentException(\n                \"securityDomain should be null if .....\");\n        }\n\nshould be changed to\n\n        if (securityDomain != null && getSecurityController() == null) {\n            throw new IllegalArgumentException(\n                \"securityDomain should be null if.....\");\n        }\n\nand getSecurityController() is already defined in Context:\n\n    SecurityController getSecurityController()\n    {\n        SecurityController global = SecurityController.global();\n        if (global != null) {\n            return global;\n        }\n        return securityController;\n    }\n\n\nReproducible: Always",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "399958",
+    "issuetypeClassified": "IMPROVEMENT",
+    "issuetypeTracker": "BUG",
+    "priority": "-- normal",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "Global Security Controller is not checked in Context.compileImpl method",
+    "systemSpecification": "windows xp x86",
+    "version": "other"
+}

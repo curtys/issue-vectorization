@@ -1,0 +1,35 @@
+{
+    "comments": [
+        {
+            "author": "Grant Ingersoll",
+            "body": "Patch.  Requires junit-3.8.2.jar in lib directory (which is not included in the patch, but I figure anyone testing it can easily find it)",
+            "date": "2008-01-25T14:10:06.379+0000",
+            "id": 0
+        },
+        {
+            "author": "Grant Ingersoll",
+            "body": "I will commit later today.",
+            "date": "2008-01-25T14:15:48.764+0000",
+            "id": 1
+        },
+        {
+            "author": "Grant Ingersoll",
+            "body": "Committed revision 615329.",
+            "date": "2008-01-25T20:28:15.899+0000",
+            "id": 2
+        }
+    ],
+    "component": "",
+    "description": "In order for Hudson builds, etc. to work properly, Lucene needs to ship the JUnit jar and have it made available in the testing classpath.  Our system reqs say 3.8.1, but I have 3.8.2 laying around, so I will update the system requirements, too.",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "LUCENE-1153",
+    "issuetypeClassified": "OTHER",
+    "issuetypeTracker": "BUG",
+    "priority": "Minor",
+    "product": "LUCENE",
+    "project": "LUCENE",
+    "summary": "Lucene needs to ship the JUnit jar for testing",
+    "systemSpecification": null,
+    "version": ""
+}

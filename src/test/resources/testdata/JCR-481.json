@@ -1,0 +1,23 @@
+{
+    "comments": [
+        {
+            "author": "Marcel Reutegger",
+            "body": "Fixed in revision: 421894",
+            "date": "2006-07-14T12:36:58.000+0000",
+            "id": 0
+        }
+    ],
+    "component": "test",
+    "description": "Reported by David Sanders:\n\nThe TCK for JSR-170 Final Release\n(http://jcp.org/aboutJava/communityprocess/final/jsr170/index.html)\nchecks for level 2 and optional features by comparing\nRepository.getDescriptor to null.  According to the\nspec and javadoc, getDescriptor must return either\n\"true\" or \"false\" for the \"capability\" keys.\n\nExample in AbsractJCRest.java:\n\n        // setup custom namespaces\n        if\n(helper.getRepository().getDescriptor(Repository.LEVEL_2_SUPPORTED)\n!= null) {\n            NamespaceRegistry nsReg =\nsuperuser.getWorkspace().getNamespaceRegistry();\n\n\nI think the above if statement should be:\n       if\n(helper.getRepository().getDescriptor(Repository.LEVEL_2_SUPPORTED)\n.equals(\"true\")) ",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "JCR-481",
+    "issuetypeClassified": "OTHER",
+    "issuetypeTracker": "BUG",
+    "priority": "Major",
+    "product": "JACKRABBIT",
+    "project": "JACKRABBIT",
+    "summary": "Checks for optional features in test cases are wrong",
+    "systemSpecification": null,
+    "version": ""
+}

@@ -1,0 +1,47 @@
+{
+    "comments": [
+        {
+            "author": "user@apochta.com",
+            "body": "Created attachment 109222\nFix for ScriptRuntime.escapeString to correctly escape \\\n\nThe above fix also removes code to escape single quote ' as it was unreachable\ndue to the previous if (' ' <= c && c <= '~' && c != '\"') check.",
+            "date": "20021213T11:22:21",
+            "id": 0
+        },
+        {
+            "author": "user@apochta.com",
+            "body": "I commited the fix.",
+            "date": "20021213T11:57:14",
+            "id": 1
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "Testcase added to JS testsuite:\n\n      mozilla/js/tests/js1_5/Regress/regress-185165.js",
+            "date": "20021214T02:34:53",
+            "id": 2
+        },
+        {
+            "author": "pschwartau@meer.net",
+            "body": "Verified FIXED.\n\nBefore the patch was applied, the testcase failed as Igor described.\nNow, the testcase passes in both the rhino and rhinoi shells -",
+            "date": "20021214T02:45:04",
+            "id": 3
+        },
+        {
+            "author": "igor@mir2.org",
+            "body": "Targeting as resolved against 1.5R4",
+            "date": "20040213T12:20:58",
+            "id": 4
+        }
+    ],
+    "component": "Core",
+    "description": "User-Agent:       Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003\nBuild Identifier: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003\n\nRhino does not decompile \"\\\\\"  string literal properly. Given\nfunction f() { return \"\\\\\"; } Rhino currently produces for print(f.toString())\n\nfunction f() {\n    return \"\\\";\n}\n\nwhich contains broken \"\\\"\n\n\nReproducible: Always\n\nSteps to Reproduce:\nRun in the shell the following script:\n\n// Check that second decompilation of script gives the same string as first one.\n\nvar f1 = function() {\n\treturn \"\\\\\";\n}\n\nvar s1 = f1.toString();\n\nvar f2;\neval(\"f2=\"+s1);\n\nvar s2 = f2.toString();\n\nvar ok = (s1 === s2);\n\nprint(ok);\n\nActual Results:  \nThe shell signals syntax error:\njs: \"x.js#8(eval)\", line 3: uncaught JavaScript exception: SyntaxError:\nunterminated string literal (x.js#8(eval); line 3)\njs:     return \"\\\";\njs: ..............^\n\n\nExpected Results:  \nThe shell should print:\ntrue",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "185165",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "-- normal",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "Decompilation of \"\\\\\" gives broken \"\\\"",
+    "systemSpecification": "linux x86",
+    "version": "other"
+}

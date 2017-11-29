@@ -1,0 +1,47 @@
+{
+    "comments": [
+        {
+            "author": null,
+            "body": "By the way, the change that introduced this issue was the fix for bug #47774.",
+            "date": "20110408T05:56:27",
+            "id": 0
+        },
+        {
+            "author": null,
+            "body": "(In reply to comment #1)\n> By the way, the change that introduced this issue was the fix for bug #47774.\n\nOops, wrong bug number: #45255 is the correct one!",
+            "date": "20110408T05:57:14",
+            "id": 1
+        },
+        {
+            "author": null,
+            "body": "Fixed in 7.0.x for 7.0.13.\n\nProposed for 6.0.x and 5.5.x",
+            "date": "20110416T18:36:08",
+            "id": 2
+        },
+        {
+            "author": null,
+            "body": "Fixed in 6.0.x and will be included in 6.0.33 onwards.",
+            "date": "20110614T11:41:58",
+            "id": 3
+        },
+        {
+            "author": null,
+            "body": "Fixed in 5.5.x and will be in 5.5.34.",
+            "date": "20110822T12:10:26",
+            "id": 4
+        }
+    ],
+    "component": "Catalina",
+    "description": "When my web application has a HttpSessionListener configured in its web.xml, then that classes sessionCreated() is called when a user is assigned a new session.\n\nHowever, that method is *also* called when that user authenticates itself and the session is assigned a new ID (whether or not this is actually a \"new session\" can be disputed, but that's not the point of this bug).\n\nWhen the session is removed (due to a timeout, for example), then a single sessionDestroyed() call is executed.\n\nWhen the HttpSessionListener manages some kind of external resource, this behaviour leads to a resource leak, because sessionCreated() is called twice, while sessionRemoved() is only called once!\n\nI'm aware of the reason for changing the session ID and (somehow) understand why sessionCreated() is called again (after all there's a new session ID), but there must be *some* way for the SessionListener to be notified that the \"old session\" no longer exists.\n\nThe same behaviour is seen in Tomcat 6.0 (and probably 5.5 as well, but I didn't test that).",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "51042",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "P2 normal",
+    "product": "Tomcat 5",
+    "project": "TOMCAT",
+    "summary": "HttpSessionListener.sessionCreated() is called a second time when user is authenticated with no matching sessionDestroyed() call.",
+    "systemSpecification": "",
+    "version": "5.5.33"
+}

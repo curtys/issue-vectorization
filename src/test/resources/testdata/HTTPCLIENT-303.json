@@ -1,0 +1,233 @@
+{
+    "comments": [
+        {
+            "author": "Mohammad Rezaei",
+            "body": "Failure to close the connection manifests itself differently depending on the\nserver. Weblogic, for example, complains loudly:\n\n<Dec 9, 2003 2:25:56 PM EST> <Error> <HTTP> <BEA-101083> <Connection failure.\njava.io.IOException: A complete message could not be read on socket:\n'weblogic.servlet.internal.MuxableSocketHTTP@194a955 - idle timeout: '60000' ms,\nsocket timeout: '30000' ms', in the configured timeout period of '60' secs\n        at weblogic.socket.SocketMuxer$TimeoutTrigger.trigger(SocketMuxer.java:775)\n...\n",
+            "date": "2003-12-10T05:39:10.000+0000",
+            "id": 0
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Mohammad,\nThis is already too late for the 2.0 release. However, such a feature would be a\nwelcome addition to the next release of HttpClient\n\nOleg",
+            "date": "2003-12-10T06:02:55.000+0000",
+            "id": 1
+        },
+        {
+            "author": "Sam Berlin",
+            "body": "Created an attachment (id=9471)\nexample diff (based off 2.0 rc2)\n",
+            "date": "2003-12-10T06:20:59.000+0000",
+            "id": 2
+        },
+        {
+            "author": "Sam Berlin",
+            "body": "The attachment is an example patch based off rc2.  I attempted last night to convert it to work \nwith the CVS HEAD, but way too much has changed (especially in the case of parameters) to do it \ncorrectly and quickly.  One thing in particular that I noted would be difficult is the lack of feedback \nwhen a setting is changed -- right now when the idle connection time changes, the waiting \nIdleConnectionThread was notified, but using the new HttpParams makes this a bit more difficult.  \nIt'd be nice if settings had a way of adding PropertyChangeListeners.  The attachment also makes \nno attempt to be generic or provide a pluggable way of manipulating connections based on various \nchanges in their states -- it is essentially a proof-of-concept patch.",
+            "date": "2003-12-10T06:24:18.000+0000",
+            "id": 3
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Hi Sam,\n\nThanks for the patch.  This seems to be a highly requested feature as of late. I\nwill spend some time working on this in the next few days.  Hopefully we'll have\nsomething by the time you return from vacation.\n\nMike",
+            "date": "2003-12-10T06:51:37.000+0000",
+            "id": 4
+        },
+        {
+            "author": "Ortwin Gl\u00fcck",
+            "body": "Sam,\n\nI just had a quick glance on the patch. I did not expect that the HttpConnection\nclass had to be changed. Do you really need to know when the connection was\nreleased? Is it not enough to know when it was returned to the pool?\nIn my humble opinion it's possible to handle this issue completely inside the\nconnection manager without tampering the HttpConnection.\n\nOdi",
+            "date": "2003-12-10T15:07:30.000+0000",
+            "id": 5
+        },
+        {
+            "author": "Sam Berlin",
+            "body": "Hi Odi,\n\nMy apogolies for the delay in this response -- I was touring Italy for a week \nor so.  (I highly recommend everyone spend part of their life in Venice, it is \ntruly fantastic.)\n\nAnyways... HttpConnection required a small change to store the time the \nconnection released (and thus returned to the pool).  It was not possible to \nmake this change in the HttpConnectionAdapter class because the ConnectionPool \nin MultiThreadedConnectionManager did not access the adapter.  An alternative \nmethod would have been to create another map where the key was the \nHttpConnection and the value was the time it was released and store this in \nConnectionPool, but I did not feel that adding another datastructure was worth \nit.  It seemed that the released time was something that may have been \nworthwhile to other classes that use HttpConnection too.\n\nMuch of the structure of the patch is going to have to change, though, to get \nit to work with the current CVS HEAD.  I have no strong feelings either way \nabout storing the release time in the HttpConnection, if it seems that it can \nbe best done elsewhere.\n\nThanks,\n Sam",
+            "date": "2003-12-21T08:31:01.000+0000",
+            "id": 6
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Created an attachment (id=10698)\nTake 2\n",
+            "date": "2004-03-08T12:21:36.000+0000",
+            "id": 7
+        },
+        {
+            "author": "Michael Becke",
+            "body": "After much delay here's a new take on this one.  This patch still needs some work and a few more test \ncases, but I think the overall design should work well.  The only major question I have is in regard to \nHttpConnection references.  The IdleConnectionHandler keeps hard references to the connections that \nit's holding.  Normally I would be opposed to this, but since they will eventually time out I think it's \nokay.   How does everyone feel about this?\n\nMike",
+            "date": "2004-03-08T12:25:41.000+0000",
+            "id": 8
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Finally I found a little time to take a look at the patch. Somehow I can't help\nthinking that coupling IdleConnectionHandler with HttpConnection is not not\nideal. What if one sets a ridiculously high idle timeout value? Connections\nwould be piling up in the IdleConnectionHandler unnecessarily.\n\nI would rather see IdleConnectionHandler monitor connections of just one\nconnection manager, and would rather have the IdleConnectionHandler stay alive\nas long as the connection manager itself stays alive. I understand your\nintention was to have only one dedicated thread watching over all active\nconnections in order to conserve resources. I personally would rather prefer a\nlittle less resource efficient but slightly more elegant solution. Besides, do\nnot we encourage people to have just one HttpClient instance with just one\nconnection manager per application, do we?\n\nOr maybe I just desperately need some sleep. Let me know if my rumbling makes\nany sense at all. If it does not I'll try to give the problem another look\ntomorrow morning (I mean this morning)\n\nOleg",
+            "date": "2004-04-09T07:36:52.000+0000",
+            "id": 9
+        },
+        {
+            "author": "Michael Becke",
+            "body": "> Somehow I can't help thinking that coupling IdleConnectionHandler with HttpConnection is not not\n> ideal. What if one sets a ridiculously high idle timeout value? Connections\n> would be piling up in the IdleConnectionHandler unnecessarily.\n\nSomeone could certainly set an unwise timeout value, but that is true for many HttpClient settings.  We \nshould ensure that the default value is good, and then rely on people to not shooting themselves in the \nfoot.\n\nI don't see the danger of having connections pile up.  It may be somewhat unelegant, but it at least \nensures that connections are eventually cleaned up.  The current alternative is to just let the \nconnections get GCed.  This method does not guarantee that the sockets are closed.\n\nAs far as coupling IdleConnectionHandler with HttpConnection, I'm not sure how else to do it.  What \nwould you suggest? \n\n> I would rather see IdleConnectionHandler monitor connections of just one\n> connection manager, and would rather have the IdleConnectionHandler stay alive\n> as long as the connection manager itself stays alive. I understand your\n> intention was to have only one dedicated thread watching over all active\n> connections in order to conserve resources. I personally would rather prefer a\n> little less resource efficient but slightly more elegant solution. Besides, do\n> not we encourage people to have just one HttpClient instance with just one\n> connection manager per application, do we?\n\nOne IdleConnectionHandler per connection manager can be done with the current system.  Since the \nidle handler is just a param, a different one can be used per connection manager.  I agree that having \njust one idle handler for all connection managers may not be good, I also think the reverse is no better.  \nMy intention was to have a sane default behavior that supports customization.\n\nMike",
+            "date": "2004-04-09T10:05:35.000+0000",
+            "id": 10
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Mike, I understand that 'elegancy' is a matter of personal preference and is\nsubjective, so all I am trying is to see if there's another way to approach the\nproblem, which may not necessarily better or feasible at all.\n\nImportant question here if tcp/ip sockets stay open when java Socket instance\ngarbage-collected or not. I believe the socket should be closed when GCed.\nThat's why I feel I'd rather have the idle connection handler hold onto\nconnection managers than individual connections, thus allowing connections to be\nGCed when no longer in use. All I am saying that my guts tell me that\nIdleConnectionManager / HttpConnectionManager coupling seems (to me) slightly\nmore elegant than IdleConnectionManager / HttpConnection coupling.\n\nOleg",
+            "date": "2004-04-09T20:26:23.000+0000",
+            "id": 11
+        },
+        {
+            "author": "Mohammad Rezaei",
+            "body": "> I believe the socket should be closed when GCed.\nBe very careful here. Sockets are not closed when GC'ed. They're closed when\nfinalized (as implemented in java.net.PlainSocket). Yes, the distinction is\nsubtle, but an important one.\nYou can somewhat rely on an object being GC'ed, but you absolutely cannot rely\non an object being finalized (in a timeframe that matters).\nI'm not sure if this is the right place to go into the details, but if the\nstatement above is not clear, I'll be happy to demonstrate with a piece of code.\nIn short, I think it would be a very bad idea not to close the socket explicitly.\n\nThanks\nMoh",
+            "date": "2004-04-09T23:51:28.000+0000",
+            "id": 12
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Mohammad,\nYou may find it shocking, but to me an object may not be considered fully\ndisposed of or garbage-collected until its finalizer has been executed. My\napologies if that was not clear.\n\nOleg",
+            "date": "2004-04-10T00:24:56.000+0000",
+            "id": 13
+        },
+        {
+            "author": "Mohammad Rezaei",
+            "body": "Oleg, you're correct, at least according to the java language spec.\nUnfortunately, the VM implementation seems to cause some serious issues. The\nfollowing code does nothing, as it should:\n\nwhile(true) new Object();\n\nThe next piece of code, however, dies with an out of memory exception:\n\nwhile(true) new java.util.zip.Deflater();\n\nDeflater has a finalizer that frees up memory. For the life of me, I can't\nreconcile this fact with the wording of the language spec. Sun has refused to\nfix the above:\nhttp://developer.java.sun.com/developer/bugParade/bugs/4094554.html\nIt's also odd that System.gc() is a different call than System.runFinalization()\n(from the spec wording, you wouldn't expect that).\nI believe this is the reason SWT component have to be disposed and don't rely on\nfinalizers. The situation is even trickier with sockets, because even after a\nsocket is closed, it has to go into TIME-WAIT. \n\n\nThanks\nMoh",
+            "date": "2004-04-10T00:37:19.000+0000",
+            "id": 14
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Yes, I agree the big question here is whether or not a Socket is closed when GCed.  My assumption was \nthat they are not guaranteed to be closed.   I don't have any concrete information to back this up but \nmy general impression is that some JVMs cannot be relied on to call finalize().  Moh's reference to SWT \nseems to be a good example. \n\nOleg, in regard to the IdleConnectionManager / HttpConnection coupling I am certainly interested in \nhearing other suggestions. Could you be more specific about about your thoughts here?\n \nMike",
+            "date": "2004-04-12T05:52:51.000+0000",
+            "id": 15
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Mike,\nYou have a perfectly valid solution to the problem, so feel free to dismiss my\nideas because they are based completely on personal preferences rather than on\nany objective good programming practices. \n\nThis is how I would go about this problem: \n\n* What I do not quite like about the current implementation is that each\nconnection manager needs to explicitly check connections in and out with the\nidle connection handler (as a result the idle connection handler is coupled with\nthe HttpConnection class, the fact I tend to dislike out of my purely personal\nfeelings)\n* At the same time there's no API that enforces a connection manager to respect\nthis implicit contract. There's an assumption that a well behaving connection\nmanager would do so, which custom connection managers, however, may choose to ignore\n* In my opinion HttpConnectionManager implementing classes appear better\nequipped to keep track of connection properties (including how long a connection\nstays idle and all sorts of statistical data: for instance, active time versus\nidle time)\n* I would add a new method to the HttpConnectionManager class:\nHttpConnectionManager#closeIdleConnections(int);\n* I would rather have HttpConnectionManager classes keep track of connections\nidle time\n* Users would not need to always have a dedicated thread watching over\nconnections. Some of them (for instance, I (do I qualify as a user? ;-)) would\nrather call closeIdleConnections once in a while from the main thread \n* I would have an optional idle connection handler class for those who need it.\nIt would maintain a list of connection managers it is watching over, run a low\npriority thread, and call on connection managers to close their idle connections\nwithout knowing a dang thing about what a connection is\n* One may have multiple idle connection handlers watching over multiple\nconnection managers without causing to much problems to one another as their\ncoupling is very loose. There's no (should be no) harm in calling\ncloseIdleConnections multiple time from multiple threads (apart from the obvious\nperformance hit)\n\nI do not know if that makes any sense. If it does not, I certainly will not\nobject checking in the proposed patch\n\nOleg",
+            "date": "2004-04-12T22:15:31.000+0000",
+            "id": 16
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Hi Oleg,\n\nThank you for taking the time to write such a thorough response.  I have a much better idea of what \nyou are saying, and unfortunately I agree with you on a number of points :)  I will begin work on a new \npatch.\n\nMike",
+            "date": "2004-04-13T09:36:00.000+0000",
+            "id": 17
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Created an attachment (id=11272)\nTake 3\n",
+            "date": "2004-04-19T09:11:17.000+0000",
+            "id": 18
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Here's another take on this patch.  It incorporates most of Oleg's suggestions, with a few changes.  The \nmost significant change it that there is no longer a thread polling for idle connections.  Instead, users \nmust call HttpConnectionManager.closeIdleConnections().  Please let me know what you think.\n\nMike",
+            "date": "2004-04-19T09:15:21.000+0000",
+            "id": 19
+        },
+        {
+            "author": "Mohammad Rezaei",
+            "body": "Comments on the new patch:\n\n1) Looks like IdleConnectionHandler will have multi-threading issues: the add\nmethod modifies the tree, while the closeIdleConnections method is trying to\niterate through the keySet.\n2) I'm not sure I understand why IdleConnectionHandler has a tree of lists (very\nexpensive structure) as well as a hashset. Can't we handle this with just a\nsimple list and a hashset?\n3) If IdleConnectionHandler.closeIdleConnections is never called, will the tree\nstructure ever get cleaned up? Is there a memory leak under this condition?\n4) Can we add a simple utility class that implements thread and calls\nIdleConnectionHandler.closeIdleConnections so that everyone doesn't have to\nwrite their own?\n\nThanks\nMoh\n",
+            "date": "2004-04-19T21:27:09.000+0000",
+            "id": 20
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "> 1) Looks like IdleConnectionHandler will have multi-threading issues: the add\n> method modifies the tree, while the closeIdleConnections method is trying to\n> iterate through the keySet.\n\nI think it perfectly OK for IdleConnectionHandler to assume that multi-threading\nissues will be taken care of by the HttpConnectionManager\n\n> 2) I'm not sure I understand why IdleConnectionHandler has a tree of \n> lists (very expensive structure) as well as a hashset. Can't we handle \n> this with just a simple list and a hashset?\n\nA tree of lists can scale much better and will be more efficient when dealing\nwith a significant number of connections. However, I think it is certainly an\noverkill for the simple (one connection) connection manager. Mike, can we have\nsomething lighter for the SimpleHttpConnectionManager?\n\n> 3) If IdleConnectionHandler.closeIdleConnections is never called, will \n> the tree structure ever get cleaned up? Is there a memory leak under \n> this condition?\n\nMike, is there any particular reason for not removing connections from the tree\nof lists in the IdleConnectionHandler#remove method?\n\n> 4) Can we add a simple utility class that implements thread and calls\n> IdleConnectionHandler.closeIdleConnections so that everyone doesn't have to\n> write their own?\n\nAgreed. A simple helper class can be quite handy\n\nOverall, the patch looks very good to me\n\nOleg",
+            "date": "2004-04-19T23:23:31.000+0000",
+            "id": 21
+        },
+        {
+            "author": "Michael Becke",
+            "body": "> 1) Looks like IdleConnectionHandler will have multi-threading issues: the add\n> method modifies the tree, while the closeIdleConnections method is trying to\n> iterate through the keySet.\n\nYes, it does not provide synchronized access.  This is up to the connection manager to take care of.  \nThe multi-threaded connection manager handles this correctly, and it is mentioned in the \nIdleConnectionHandler Javadocs. \n\n> 2) I'm not sure I understand why IdleConnectionHandler has a tree of lists (very\n> expensive structure) as well as a hashset. Can't we handle this with just a\n> simple list and a hashset?\n\nIt may be a little heavy, but it works more efficiently as the number of connections increases.\n\n> 3) If IdleConnectionHandler.closeIdleConnections is never called, will the tree\n> structure ever get cleaned up? Is there a memory leak under this condition?\n\nIt will eventually get GCed if all references to it are lost.  The connections are not guaranteed to be \nclosed though.\n\n> 4) Can we add a simple utility class that implements thread and calls\n> IdleConnectionHandler.closeIdleConnections so that everyone doesn't have to\n> write their own?\n\nSounds like a decent idea.\n\nMike",
+            "date": "2004-04-20T09:42:05.000+0000",
+            "id": 22
+        },
+        {
+            "author": "Michael Becke",
+            "body": "> A tree of lists can scale much better and will be more efficient when dealing\n> with a significant number of connections. However, I think it is certainly an\n> overkill for the simple (one connection) connection manager. Mike, can we have\n> something lighter for the SimpleHttpConnectionManager?\n\nCan do.\n\n> Mike, is there any particular reason for not removing connections from the tree\n> of lists in the IdleConnectionHandler#remove method?\n\nThis is just to avoid iterating over the tree map.  The map is keyed by the time added instead of the \nconnection.\n\nMike\n",
+            "date": "2004-04-20T09:47:43.000+0000",
+            "id": 23
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Created an attachment (id=11297)\nTake 4\n",
+            "date": "2004-04-21T08:58:43.000+0000",
+            "id": 24
+        },
+        {
+            "author": "Michael Becke",
+            "body": "This one should address everyones concerns with the last patch.  Please let me know what you think.\n\nMike",
+            "date": "2004-04-21T08:59:33.000+0000",
+            "id": 25
+        },
+        {
+            "author": "Mohammad Rezaei",
+            "body": "> Yes, it does not provide synchronized access.  This is up to the connection\nmanager to take care of.  \n Sorry about that, I missed the javadoc at the top. There is, however, one\ndownside to doing the synchronization at a higher level: the lock is held while\nidle connections are being closed. In other words, no new connections can be\nmade, no connections can be checked out, etc while we're trying to close off old\nconnections. Is socket.close() a fast operation or can it take some time (tens\nof milliseconds)? If it's slow, we may have to think about this carefully.\n\n> It will eventually get GCed if all references to it are lost.\nBut all references to it are not lost: my main thread holds onto the connection\nmanager, which holds onto the idle connection handler. Consider for example an\nHTTP proxy, implemented using HttpClient: the usage pattern requires lots of\narbitrary connections to many different hosts. If nobody calls\ncloseIdleConnections, the tree structure will not get cleaned out and the\nchances of a http connection being reused are slim (actually, they're high for\nshort bursts, but low over the long run). Am I missing something?\n\nThanks\nMoh",
+            "date": "2004-04-21T20:30:14.000+0000",
+            "id": 26
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Hi Moh,\n\n> Sorry about that, I missed the javadoc at the top. There is, however, one\n> downside to doing the synchronization at a higher level: the lock is held while\n> idle connections are being closed. In other words, no new connections can be\n> made, no connections can be checked out, etc while we're trying to close off old\n> connections. Is socket.close() a fast operation or can it take some time (tens\n> of milliseconds)? If it's slow, we may have to think about this carefully.\n\nThis is true, but I don't think there is much we can do about it.  We need to ensure synchronized access \nto the connections, and I think we will end up blocking one way or another.  The upside is that closing \nidle connections should not happen happen terribly often.  My feeling is that this will not be a major \nperformance problem.  Please let me know if your experience proves otherwise.\n\n> But all references to it are not lost: my main thread holds onto the connection\n> manager, which holds onto the idle connection handler. Consider for example an\n> HTTP proxy, implemented using HttpClient: the usage pattern requires lots of\n> arbitrary connections to many different hosts. If nobody calls\n> closeIdleConnections, the tree structure will not get cleaned out and the\n> chances of a http connection being reused are slim (actually, they're high for\n> short bursts, but low over the long run). Am I missing something?\n\nI guess I'm not sure how this is different from the current behavior.  The connection managers already \nhold references to all connections that they own.  The idle connection handler just adds a second \nreference.  These changes do not effect the connection life-cycle they just allow for tracking idle \nconnections.\n\nMike",
+            "date": "2004-04-22T05:55:55.000+0000",
+            "id": 27
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Mike,\nI have just been thinking: honestly, with millisecond precision what do you\nthink is the probability of the tree node ending up containing more than one\nentry? I'd say no more than 2-3%. More than two? Virtually zero. Is the tree of\nlists really worth the trouble? What if we (1) rounded the 'time added'\nprecision to seconds or even decaseconds or (2) replaced the TreeMap and HashSet\nby a simple LinkedLink?\n\nOleg",
+            "date": "2004-04-24T17:48:56.000+0000",
+            "id": 28
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Created an attachment (id=11320)\nTake 5\n",
+            "date": "2004-04-24T23:14:11.000+0000",
+            "id": 29
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Ok, this one has a simplified IdleConnectionHandler.\n\nMike",
+            "date": "2004-04-24T23:15:34.000+0000",
+            "id": 30
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Looks good. +1 from me to commit\n\nOleg",
+            "date": "2004-04-24T23:41:07.000+0000",
+            "id": 31
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Patch applied to HEAD.\n\nMike",
+            "date": "2004-04-26T04:56:32.000+0000",
+            "id": 32
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Mike, I know I have been torturing you for days with this patch, but I just\nrealized there's a small issue with the use of HashMap to store connections in\nthe IdleConnectionHandler. What if an attempt is made to add another connection\nwithin the same millisecond? This scenario is highly unlikely but not\nimpossible. I see two ways to fix the problem: (1) check if there's an entry for\nthe given time, if yes, 'pad' the current time value by one until a unique value\nis found; (2) use a List to store objects containing the connection with its\nrespective add time\n\nOleg",
+            "date": "2004-04-26T06:24:59.000+0000",
+            "id": 33
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Hi Oleg,\n\nThe connections are no longer indexed by when they were added.  I decided to do away with the tree \nmap and instead am just scanning the full set of collections.  Given that the idle handler is now only \nused in a single connection manager and that closeIdleConnections will not be called very often I think \nthe original optimization is not really needed.\n\nMike",
+            "date": "2004-04-26T07:55:43.000+0000",
+            "id": 34
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Silly me. I've missed the fact that connection objects are used as the hash map\nkeys, not the time values.\n\nOleg",
+            "date": "2004-04-26T23:22:33.000+0000",
+            "id": 35
+        }
+    ],
+    "component": "HttpClient (classic)",
+    "description": "This has been mentioned several times on the mailing list (most recently here:\nhttp://nagoya.apache.org/eyebrowse/ReadMsg?listName=commons-httpclient-dev@jakarta.apache.org&msgNo=5191\n)\nIt is desirable for the http client to close it's connection after some\nconfigurable idle time. Failing to do so causes the server (and every TCP\nresource in between) to keep the socket open and possibly run out of resources\nunder load.\n\nThe HTTP 1.1 RFC has this to say under section 8.1.4:\nServers will usually have some time-out value beyond which they will\n   no longer maintain an inactive connection. Proxy servers might make\n   this a higher value since it is likely that the client will be making\n   more connections through the same server. The use of persistent\n   connections places no requirements on the length (or existence) of\n   this time-out for either the client or the server.\n\n   When a client or server wishes to time-out it SHOULD issue a graceful\n   close on the transport connection. Clients and servers SHOULD both\n   constantly watch for the other side of the transport close, and\n   respond to it as appropriate. If a client or server does not detect\n   the other side's close promptly it could cause unnecessary resource\n   drain on the network.\n\nThe first sentence of the 2nd paragraph is interesting: how is the client\nsupposed to do a \"graceful close\"? Does it simply mean closing the socket?\nOne possiblity may be to issue a HTTP/OPTIONS * request with a Connection:close\nheader.",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "HTTPCLIENT-303",
+    "issuetypeClassified": "IMPROVEMENT",
+    "issuetypeTracker": "IMPROVEMENT",
+    "priority": "Minor",
+    "product": "HTTPCLIENT",
+    "project": "HTTPCLIENT",
+    "summary": "auto close idle connections",
+    "systemSpecification": "",
+    "version": "2.0 Milestone 2"
+}

@@ -1,0 +1,29 @@
+{
+    "comments": [
+        {
+            "author": null,
+            "body": "I don't suppose you care to suggest a patch? ;)",
+            "date": "20061225T05:02:00",
+            "id": 0
+        },
+        {
+            "author": null,
+            "body": "This should have been fixed in 5.5.27.",
+            "date": "20090209T11:43:59",
+            "id": 1
+        }
+    ],
+    "component": "Catalina",
+    "description": "According to the JAAS API documentation, LoginModules are allowed to add\nany number of Principal and Credential objects to the Subject passed to\nthe LoginModule. After all login modules commit sucessfully, all the\nadded information is available to the application. via:\nAccessControlContext acc = AccessController.getContext();\nSubject sub = Subject.getSubject(acc);\n\nIf JAAS authentication is enabled in Tomcat (using JAAS Realm), only the\n\"user\" Principal is added to the Subject, i.e. further Principals that for\ninstance describe Groups or Roles and also other security credentials are \nnot available to the application. \n\nThe basic problem seems to be that the Subject passed to the LoginModule is\nCatalina internally only of temporary use. It is at least not the same object\nas being later added to the session.\n\nThe only work around currently is to add all additional Principal and\nSubject information to the \"user\" Principal returned to JAASRealm. This\ncan of course only be done if one writes its own LoginModule. Login modules\nprovided by Java (such as NTLoginModule) can not fully be used, since most of\nthe login information will not be available.\n\nFurthermore, the Subject and its credentials are often also used to keep\nSecurity related information between two containers such as a webcontainer \nand an EJB container. A typical place to keep this information is the Subject\n(and not the session).",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "39433",
+    "issuetypeClassified": "RFE",
+    "issuetypeTracker": "BUG",
+    "priority": "P2 major",
+    "product": "Tomcat 5",
+    "project": "TOMCAT",
+    "summary": "JAAS LoginModule handling ignores Principals and Credentials added to the Subject",
+    "systemSpecification": "",
+    "version": "5.5.15"
+}

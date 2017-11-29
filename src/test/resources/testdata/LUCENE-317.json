@@ -1,0 +1,41 @@
+{
+    "comments": [
+        {
+            "author": "Wolf Siberski",
+            "body": "Created an attachment (id=13546)\nCheck if writeLock is null before releasing\n",
+            "date": "2004-11-26T19:21:46.000+0000",
+            "id": 0
+        },
+        {
+            "author": "Bernhard Messer",
+            "body": "Wolf,\n\ncan you add a small sample how to raise the NullpointerException. I tried to\nrecreate your problem but it never occurs. If you have a look at the\nimplementation of IndexWriter, the writeLock member is created and assigned\nwithin the constructor.\n\nLock writeLock = directory.makeLock(IndexWriter.WRITE_LOCK_NAME);\nif (!writeLock.obtain(WRITE_LOCK_TIMEOUT)) // obtain write lock\n   throw new IOException(\"Index locked for write: \" + writeLock);\nthis.writeLock = writeLock;   \n\nSo the only possible chance that it isn't assigned and has a null value, is when\nthe IOException is thrown.\n\nthanks\nBernhard",
+            "date": "2004-11-29T00:32:47.000+0000",
+            "id": 1
+        },
+        {
+            "author": "Wolf Siberski",
+            "body": "Hi Bernard,\n\nI checked again, and it turned out that I was closing the IndexWriter twice. It\nhas nothing to do with Locks being enabled or disabled. Sorry for causing\nunnecessary effort, I should have looked into the issue more thoroughly. Anyway,\nIMHO closing a Writer more than once should do no harm, so the patch may still\nbe considered as enhancement.",
+            "date": "2004-11-29T01:33:39.000+0000",
+            "id": 2
+        },
+        {
+            "author": "Bernhard Messer",
+            "body": "reviewed and committed.",
+            "date": "2004-11-30T05:42:03.000+0000",
+            "id": 3
+        }
+    ],
+    "component": "core/index",
+    "description": "If locks are disabled (via setting the System property 'disableLuceneLocks' to\ntrue), IndexWriter throws a NullPointerException on closing. The reason is that\nthe attempt to call writeLock.release() fails because writeLock is null.\nTo correct this, just check for this case before releasing. A (trivial) patch is\nattached.",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "LUCENE-317",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "IMPROVEMENT",
+    "priority": "Minor",
+    "product": "LUCENE",
+    "project": "LUCENE",
+    "summary": "[PATCH] When locks are disabled, IndexWriter.close() throws NullPointerException",
+    "systemSpecification": "WindowsXP\nPC",
+    "version": ""
+}

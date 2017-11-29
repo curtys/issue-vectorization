@@ -1,0 +1,65 @@
+{
+    "comments": [
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Go for it\n\nOleg",
+            "date": "2006-06-03T18:44:15.000+0000",
+            "id": 0
+        },
+        {
+            "author": "Sebb",
+            "body": "Patch to 3.0 branch. Returns array of all registered names except DEFAULT",
+            "date": "2006-06-03T19:52:34.000+0000",
+            "id": 1
+        },
+        {
+            "author": "Roland Weber",
+            "body": "Hi Sebastian,\n\nWe can avoid the creation of some temporary objects by changing your patch as follows:\n- create the ArrayList with appropriate size (SPECS.size(), in case there is no DEFAULT)\n- create the array for the toArray call with appropriate size (list.size())\n\nWould you mind adding a description to the JavaDocs, for the overview pages?\n\"Obtains the registered cookie policy names.\" or something like that.\n\nI'm not sure whether it's worth the trouble to strip the DEFAULT policy from the result.\n  return (String[]) SPECS.keySet().toArray(new String [SPECS.size()]);\nlooks so much simpler. And you can check whether the default policy is registered.\nIt should be, but it can be deregistered.\n\ncheers,\n  Roland\n",
+            "date": "2006-06-03T20:12:22.000+0000",
+            "id": 2
+        },
+        {
+            "author": "Sebb",
+            "body": "JavaDoc - OK\n(I just followed the lead of  getCompatibilitySpec, but I see that is deprecated)\nSize - OK\nRemoving DEFAULT: I've added an option to include it or not",
+            "date": "2006-06-03T20:44:11.000+0000",
+            "id": 3
+        },
+        {
+            "author": "Sebb",
+            "body": "Original patch can be deleteted/marked as obsolete (not sure how to do that)",
+            "date": "2006-06-03T20:45:35.000+0000",
+            "id": 4
+        },
+        {
+            "author": "Roland Weber",
+            "body": "Hi Sebastian,\n\nthere's still the \"new String[0]\" instead of \"new String[list.size()])\" :-)\n\nI think the boolean argument to this method is overkill. We should\njust agree on one behavior and implement that. I don't have strong\nfeelings about it, so if you prefer to remove the default, go with it.\nBut you should be aware that a custom cookie spec might be\nregistered only as the default and not with an explicit name.\n\ncheers,\n  Roland\n",
+            "date": "2006-06-03T20:56:25.000+0000",
+            "id": 5
+        },
+        {
+            "author": "Sebb",
+            "body": "OK, had no realised that the default was not always the same as one of the other entries.\n\nPatch updated accordingly.\n\nI added \"@since 3.1\" as well - hope that's OK.\n\nObsoletes patch.txt and patch1.txt.",
+            "date": "2006-06-03T23:59:58.000+0000",
+            "id": 6
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Patch checked in. Many thanks, Sebastian\n\nOleg\n\n",
+            "date": "2006-06-04T01:48:11.000+0000",
+            "id": 7
+        }
+    ],
+    "component": "HttpClient (classic)",
+    "description": "It would be useful for JMeter (and perhaps other applications) to have access to the list of registered Cookie policy names.\n\n[If this is acceptable, let me know if you want me to provide a patch.]",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "HTTPCLIENT-582",
+    "issuetypeClassified": "RFE",
+    "issuetypeTracker": "IMPROVEMENT",
+    "priority": "Major",
+    "product": "HTTPCLIENT",
+    "project": "HTTPCLIENT",
+    "summary": "Allow access to registered cookie policies",
+    "systemSpecification": null,
+    "version": ""
+}

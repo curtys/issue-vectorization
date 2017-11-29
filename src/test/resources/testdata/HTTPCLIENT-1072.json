@@ -1,0 +1,23 @@
+{
+    "comments": [
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Workaround committed to the SVN trunk and the 4.1.x branch. Sorry it took so long.\n\nOleg\n\n",
+            "date": "2011-06-27T19:21:54.789+0000",
+            "id": 0
+        }
+    ],
+    "component": "HttpClient (classic)",
+    "description": "Eclipse doesn't support bundles with nested jars (https://bugs.eclipse.org/bugs/show_bug.cgi?id=111238). The workaround is to inline the contents of the nested jars. This is a simple fix that shouldn't impact non-Eclipse users:\r\n\r\npom.xml\r\n===================================================================\r\n- <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>\r\n+ <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>\r\n",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "HTTPCLIENT-1072",
+    "issuetypeClassified": "OTHER",
+    "issuetypeTracker": "IMPROVEMENT",
+    "priority": "Major",
+    "product": "HTTPCLIENT",
+    "project": "HTTPCLIENT",
+    "summary": "Inline nested jars in OSGi bundles",
+    "systemSpecification": null,
+    "version": "4.1 Final"
+}

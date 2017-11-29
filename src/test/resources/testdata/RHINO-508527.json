@@ -1,0 +1,47 @@
+{
+    "comments": [
+        {
+            "author": "rspeyer@gmail.com",
+            "body": "Created attachment 392691\nmade missing array literal elements still contribute to the length\n\nAs per 11.1.4 of the spec",
+            "date": "20090805T11:41:03",
+            "id": 0
+        },
+        {
+            "author": "rspeyer@gmail.com",
+            "body": "Created attachment 392692\nmade missing array literal elements still contribute to the length (with tests)\n\nReplacement for attachment 392691. Added doctests.",
+            "date": "20090805T11:43:07",
+            "id": 1
+        },
+        {
+            "author": "norrisboyd@gmail.com",
+            "body": "You need to explicitly create a NativeArray rather than relying upon cx.newObject. The older code was written before it was explicitly standardized that array literals should call the standard built-in constructor. With your patch the following happens:\n\njs> function Array() { print('hi'); }\njs> var a = []\nhi\nException in thread \"main\" java.lang.ClassCastException: org.mozilla.javascript.NativeObject cannot be cast to org.mozilla.javascript.NativeArray\n\tat org.mozilla.javascript.ScriptRuntime.newArrayLiteral(ScriptRuntime.java:3469)\n\tat org.mozilla.javascript.Interpreter.interpretLoop(Interpreter.java:2059)\n\tat org.mozilla.javascript.Interpreter.interpret(Interpreter.java:845)\n\tat org.mozilla.javascript.InterpretedFunction.call(InterpretedFunction.java:164)\n\tat org.mozilla.javascript.ContextFactory.doTopCall(ContextFactory.java:426)\n\tat org.mozilla.javascript.ScriptRuntime.doTopCall(ScriptRuntime.java:3090)\n\tat org.mozilla.javascript.InterpretedFunction.exec(InterpretedFunction.java:175)\n\tat org.mozilla.javascript.tools.shell.Main.evaluateScript(Main.java:563)\n\tat org.mozilla.javascript.tools.shell.Main.processSource(Main.java:424)\n\tat org.mozilla.javascript.tools.shell.Main.processFiles(Main.java:196)\n\tat org.mozilla.javascript.tools.shell.Main$IProxy.run(Main.java:117)\n\tat org.mozilla.javascript.Context.call(Context.java:522)\n\tat org.mozilla.javascript.ContextFactory.call(ContextFactory.java:535)\n\tat org.mozilla.javascript.tools.shell.Main.exec(Main.java:179)\n\tat org.mozilla.javascript.tools.shell.Main.main(Main.java:157)",
+            "date": "20090809T12:53:01",
+            "id": 2
+        },
+        {
+            "author": "rspeyer@gmail.com",
+            "body": "Created attachment 393766\nmissing array literal elements contribute to length (use default builtin constructor)",
+            "date": "20090811T15:04:51",
+            "id": 3
+        },
+        {
+            "author": "norrisboyd@gmail.com",
+            "body": "Checking in src/org/mozilla/javascript/ScriptRuntime.java;\n/cvsroot/mozilla/js/rhino/src/org/mozilla/javascript/ScriptRuntime.java,v  <--  ScriptRuntime.java\nnew revision: 1.319; previous revision: 1.318\ndone\nChecking in testsrc/doctests/array.length.doctest;\n/cvsroot/mozilla/js/rhino/testsrc/doctests/array.length.doctest,v  <--  array.length.doctest\ninitial revision: 1.1\ndone",
+            "date": "20090815T21:35:31",
+            "id": 4
+        }
+    ],
+    "component": "Core",
+    "description": "User-Agent:       Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_7; en-US) AppleWebKit/532.0 (KHTML, like Gecko) Chrome/3.0.196 Safari/532.0\nBuild Identifier: Rhino 1.7 release 2 2009 03 22\n\nFrom 11.1.4 of the spec:\n\n\"Array elements may be elided at the beginning, middle or end of the element list. Whenever a comma in the element list is not preceded by an AssignmentExpression (i.e., a comma at the beginning or after another comma), the missing array element contributes to the length of the Array and increases the index of subsequent elements. Elided array elements are not defined. If an element is elided at the end of an array, that element does not contribute to the length of the Array.\"\n\nReproducible: Always\n\nActual Results:  \njs> [,1,2].length\n3\njs> [1,,2].length\n3\njs> [1,2,].length\n2\njs> [,].length\n0\njs> [1,,].length\n1\n\n\nExpected Results:  \njs> [,1,2].length\n3\njs> [1,,2].length\n3\njs> [1,2,].length\n2\njs> [,].length\n1\njs> [1,,].length\n2",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "508527",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "-- normal",
+    "product": "Rhino",
+    "project": "RHINO",
+    "summary": "missing array elements contribute to the length of the array",
+    "systemSpecification": "",
+    "version": "other"
+}

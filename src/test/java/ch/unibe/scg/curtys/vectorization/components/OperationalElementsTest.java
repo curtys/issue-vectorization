@@ -78,6 +78,21 @@ public class OperationalElementsTest {
 
 	private String text16 = "reallyLongMethodName (Object something)";
 
+	private String text17 = "org.apache.catalina.startup.Bootstrap";
+
+	private String text18 = "org.apache.catalina.startup.BootstrapClass";
+
+	private String text19 = "https://bugs.eclipse.org/bugs/show_bug.cgi?id=111238";
+
+	private String text20 = "pom.xml\n"
+			+ "===================================================================\n"
+			+ "\n"
+			+ "    <Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>\n"
+			+ "    + <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>\n"
+			+ "\n";
+
+	private String text21 = "4.1.x";
+
 	private OperationalElements vecElement = new OperationalElements();
 
 	@Test
@@ -98,6 +113,11 @@ public class OperationalElementsTest {
 		assertTrue(vecElement.matchesFilter(text14));
 		assertFalse(vecElement.matchesFilter(text15));
 		assertTrue(vecElement.matchesFilter(text16));
+		assertTrue(vecElement.matchesFilter(text17));
+		assertTrue(vecElement.matchesFilter(text18));
+		assertFalse(vecElement.matchesFilter(text19));
+		assertFalse(vecElement.matchesFilter(text20));
+		assertFalse(vecElement.matchesFilter(text21));
 	}
 
 }

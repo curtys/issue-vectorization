@@ -25,7 +25,7 @@ public class ErrorElements extends KeywordVectorComponent {
 	}
 	private static class ExceptionClassFilter implements TextFilter {
 		@Override public boolean filter(String text) {
-			Pattern pattern = Pattern.compile("\\p{Upper}[A-z]*Exception[\\p{Punct}\\p{Blank}]?$",
+			Pattern pattern = Pattern.compile("\\p{Upper}[A-z]*(Exception|Error)[\\p{Punct}\\p{Blank}]?",
 					Pattern.DOTALL | Pattern.MULTILINE);
 			Matcher m = pattern.matcher(text);
 

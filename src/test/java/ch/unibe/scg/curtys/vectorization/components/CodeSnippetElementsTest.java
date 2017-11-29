@@ -75,6 +75,30 @@ public class CodeSnippetElementsTest {
 
 	private String text5 = "new URIBuilder(\"http://www.example.com\").addParameter(\"foo\", \"bar\")";
 
+	private String text6 = "Failure to close the connection manifests itself differently depending on the\n"
+			+ "server. Weblogic, for example, complains loudly:\n"
+			+ "\n"
+			+ "<Dec 9, 2003 2:25:56 PM EST> <Error> <HTTP> <BEA-101083> <Connection failure.\n"
+			+ "java.io.IOException: A complete message could not be read on socket:\n"
+			+ "'weblogic.servlet.internal.MuxableSocketHTTP@194a955 - idle timeout: '60000' ms,\n"
+			+ "socket timeout: '30000' ms', in the configured timeout period of '60' secs\n"
+			+ "at weblogic.socket.SocketMuxer$TimeoutTrigger.trigger(SocketMuxer.java:775)";
+
+	private String text7 = "          mozilla/js/tests/ecma_3/Function/regress-131964.js";
+
+	private String text8 = "\n"
+			+ "Checking in Interpreter.java;\n"
+			+ "/cvsroot/mozilla/js/rhino/src/org/mozilla/javascript/Interpreter.java,v  <--  In\n"
+			+ "terpreter.java\n"
+			+ "new revision: 1.74; previous revision: 1.73\n"
+			+ "done";
+
+	private String text9 = "FAILED!: Section 1 of test -\n"
+			+ "FAILED!: Expected value 'f lives!', Actual value 'f was deleted'\n"
+			+ "\n"
+			+ "FAILED!: Section 2 of test -\n"
+			+ "FAILED!: Expected value 'f lives!', Actual value 'f was deleted'";
+
 	private CodeSnippetElements vecElement = new CodeSnippetElements();
 
 	@Test
@@ -84,6 +108,10 @@ public class CodeSnippetElementsTest {
 		assertTrue(vecElement.matchesFilter(text3));
 		assertTrue(vecElement.matchesFilter(text4));
 		assertTrue(vecElement.matchesFilter(text5));
+		assertFalse(vecElement.matchesFilter(text6));
+		assertFalse(vecElement.matchesFilter(text7));
+		assertFalse(vecElement.matchesFilter(text8));
+		assertFalse(vecElement.matchesFilter(text9));
 	}
 
 }

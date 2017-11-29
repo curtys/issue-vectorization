@@ -1,0 +1,29 @@
+{
+    "comments": [
+        {
+            "author": null,
+            "body": "But removing the exec will make shutdown.sh wait until shutdown is complete, \nnot return right away like now.  For a large system, this can easily be \nseveral seconds (or more, depending on custom shutdown code in user webapps).",
+            "date": "20030627T22:39:50",
+            "id": 0
+        },
+        {
+            "author": null,
+            "body": "Since I don't see how this can work well in all situations (except if we add a\nnew command which would just kill Tomcat - not that good an idea IMO), I'm\nwilling to make the change. We'll see how it works in practice ...",
+            "date": "20030902T12:26:06",
+            "id": 1
+        }
+    ],
+    "component": "Native:Integration",
+    "description": "The 'if [ \"$1\" = \"-force\" ]' branch of the stop command is never called because\nof the previous \"exec $_RUNJAVA... org.apache.catalina.startup.Bootstrap $@\nstop\" command (the processing of catalina.sh ends by calling exec). \n\nRemoving the exec command fixes the problem as far as I can see.\n\nFixed code snippet:\n\nelif [ \"$1\" = \"stop\" ] ; then\n\n  shift\n  \"$_RUNJAVA\" $JAVA_OPTS $CATALINA_OPTS \\\n    -Djava.endorsed.dirs=\"$JAVA_ENDORSED_DIRS\" -classpath \"$CLASSPATH\" \\\n    -Dcatalina.base=\"$CATALINA_BASE\" \\\n    -Dcatalina.home=\"$CATALINA_HOME\" \\\n    -Djava.io.tmpdir=\"$CATALINA_TMPDIR\" \\\n    org.apache.catalina.startup.Bootstrap \"$@\" stop\n\n  if [ \"$1\" = \"-force\" ] ; then\n    shift\n    if [ ! -z \"$CATALINA_PID\" ]; then\n       echo \"Killing: `cat $CATALINA_PID`\"\n       kill -9 `cat $CATALINA_PID`\n    fi\n  fi\n\n\nelse",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "20029",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "P3 normal",
+    "product": "Tomcat 5",
+    "project": "TOMCAT",
+    "summary": "catalina.sh - command \"stop -force\" not working",
+    "systemSpecification": "linux pc",
+    "version": "5.0.2"
+}

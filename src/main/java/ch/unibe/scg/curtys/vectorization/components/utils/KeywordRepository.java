@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.naming.OperationNotSupportedException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,12 +14,13 @@ import java.util.regex.Pattern;
  */
 public class KeywordRepository {
 
-	private List<String> keywords;
-	private List<String> keywordsWithSynonyms;
+	private List<String> keywords = new ArrayList<>();
+	private List<String> keywordsWithSynonyms = new ArrayList<>();
 
-	public KeywordRepository() {
-		this.keywords = new ArrayList<>();
-		this.keywordsWithSynonyms = new ArrayList<>();
+	public KeywordRepository() {}
+
+	public KeywordRepository(String... keywords) {
+		this.keywords.addAll(Arrays.asList(keywords));
 	}
 
 	public void add(String keyword) {
@@ -44,5 +46,9 @@ public class KeywordRepository {
 	public void addWithSynonym(String keyword)
 			throws OperationNotSupportedException {
 		throw new OperationNotSupportedException("not implemented");
+	}
+
+	public List<String> getKeywords() {
+		return keywords;
 	}
 }

@@ -1,0 +1,71 @@
+{
+    "comments": [
+        {
+            "author": "Peter Keegan",
+            "body": "Added 'testNoPayload'",
+            "date": "2007-08-31T14:36:08.881+0000",
+            "id": 0
+        },
+        {
+            "author": "Grant Ingersoll",
+            "body": "Hi Peter, \n\nCouple comments.  #1 makes sense, except the super.score() part, the score from the other part of the matching is handled by the nonPayloadExpl part.  I do agree it should check for zero on payloadsSeen, though, and have added that.\n\nI don't think I am understanding the issue with #2 above.  I am not sure the test is correct.  The results[0] being passed into the checkHitCollector say you expect Document 0 to be a match, but this can't be since the boost is 0, therefore there are no results.  This can be seen by running the query against the search without the explain, as in:\nTopDocs hits = searcher.search(query, null, 100);\nassertTrue(\"hits Size: \" + hits.totalHits + \" is not: \" + 0, hits.totalHits == 0);\n\nOr, perhaps I am missing something?  I guess I don't see why the boost part needs to be in there?  Can't you have a test that has no payloads?\n",
+            "date": "2007-09-07T12:21:48.732+0000",
+            "id": 1
+        },
+        {
+            "author": "Grant Ingersoll",
+            "body": "but, I agree, there is something wrong here.  Attached is an update of the Test, plus a fix for #1.",
+            "date": "2007-09-07T12:32:25.007+0000",
+            "id": 2
+        },
+        {
+            "author": "Grant Ingersoll",
+            "body": "OK, I think I see the problem,\n\nThe issue lies in the fact that the Similarity override for this test sets the tf() to 1, regardless of the frequency coming in.  Thus, for the \"foo\" clause, it \n\nLet me know what you think of this patch.",
+            "date": "2007-09-07T12:49:00.172+0000",
+            "id": 3
+        },
+        {
+            "author": "Peter Keegan",
+            "body": "\n\nHi Grant,\n\n> TopDocs hits = searcher.search(query, null, 100);\n> assertTrue(\"hits Size: \" + hits.totalHits + \" is not: \" + 0, hits.totalHits == 0);\n\nTopDocCollector discards hits with score = 0, so that's not a fair comparison. If you do a similar test with TermQuery (with a field boost = 0) instead of BoostingTermQuery, you'll see the difference. Even terms with 0 weight are included in the explanation. Make sense?\n\nPeter\n\n",
+            "date": "2007-09-07T13:33:57.715+0000",
+            "id": 4
+        },
+        {
+            "author": "Grant Ingersoll",
+            "body": "OK, I added the setBoost(0) back in, but kept the similarity change and the test passes",
+            "date": "2007-09-07T13:59:38.866+0000",
+            "id": 5
+        },
+        {
+            "author": "Peter Keegan",
+            "body": "Confirmed - thanks.",
+            "date": "2007-09-07T14:51:08.916+0000",
+            "id": 6
+        },
+        {
+            "author": "Grant Ingersoll",
+            "body": "Committed.",
+            "date": "2007-09-08T16:57:59.209+0000",
+            "id": 7
+        },
+        {
+            "author": "Peter Keegan",
+            "body": "Hi Grant,\n\nTopDocCollector discards hits with score = 0, so that's not a fair\ncomparison. If you do a similar test with TermQuery (with a field boost = 0)\ninstead of BoostingTermQuery, you'll see the difference. Even terms with 0\nweight are included in the explanation. Make sense?\n\nPeter\n\n\n",
+            "date": "2007-11-03T05:41:58.935+0000",
+            "id": 8
+        }
+    ],
+    "component": "core/search",
+    "description": "There are a couple of minor bugs in BoostingTermQuery.explain().\n\n1. The computation of average payload score produces NaN if no payloads were found. It should probably be:\nfloat avgPayloadScore = super.score() * (payloadsSeen > 0 ? (payloadScore / payloadsSeen) : 1);\n\n2. If the average payload score is zero, the value of the explanation is 0:\nresult.setValue(nonPayloadExpl.getValue() * avgPayloadScore);\nIf the query is part of a BooleanClause, this results in:\n\"no match on required clause...\"\n\"failure to meet condition(s) of required/prohibited clause(s)\"\n\nThe average payload score can be zero if the field boost = 0.\n\nI've attached a patch to 'TestBoostingTermQuery.java', however, the test 'testNoPayload' fails in 'SpanScorer.score()' because the doc = -1. It looks like 'setFreqCurrentDoc() should have been called before 'score()'. Maybe someone more knowledgable of spans could investigate this.\n",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "LUCENE-991",
+    "issuetypeClassified": "BUG",
+    "issuetypeTracker": "BUG",
+    "priority": "Minor",
+    "product": "LUCENE",
+    "project": "LUCENE",
+    "summary": "BoostingTermQuery.explain() bugs",
+    "systemSpecification": null,
+    "version": "2.2"
+}

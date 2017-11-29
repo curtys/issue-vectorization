@@ -1,0 +1,77 @@
+{
+    "comments": [
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "There is a binary package available at the download page containing all requisite jars. \n\nThis is a local class loader problem that has nothing to do with HttpClient.\n\nOleg",
+            "date": "2009-01-13T19:30:50.773+0000",
+            "id": 0
+        },
+        {
+            "author": "Tushar",
+            "body": "then can you add a page pointing to it - i downloaded all the binaries from http://hc.apache.org/downloads.cgi did not work out\n\na quick start guide in the samples docs or better yet in the wiki would really help",
+            "date": "2009-01-13T22:34:40.538+0000",
+            "id": 1
+        },
+        {
+            "author": "Tushar",
+            "body": "or at lesat give the exact URL so we can download and use - run the \nexample :-\norg.apache.http.examples.client.ClientFormLogin",
+            "date": "2009-01-13T22:37:22.184+0000",
+            "id": 2
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "http://www.apache.org/dist/httpcomponents/httpclient/binary/httpcomponents-client-4.0-beta2-bin-with-dependencies.zip\n\nOleg",
+            "date": "2009-01-13T23:18:13.385+0000",
+            "id": 3
+        },
+        {
+            "author": "Tushar",
+            "body": "thank you much for that. was missing apache-mime4j-0.5.jar now it compiles. would be awesome if you can add this to the samples folder in a read me or / and wiki will save time when someone else tries this. i at least had a work around as had a copy working with 3.1\n\nTushar Kapila \nhttp://sel2in.com www.worldcommunitygrid.org Volunteer computer Cancer cures\nwww.thehungersite.com , and www.bhookh.com feed hungry , its free. www.ecologyfund.com\nPlease add these to your start-up how to: http://tusharkapila.blogspot.com/2008/05/s.html",
+            "date": "2009-01-14T01:26:19.142+0000",
+            "id": 4
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Fair enough. A 'Getting Started' guide for HttpClient 4.0 would indeed be nice. \n\nBTW, feel free to contribute\n\nOleg",
+            "date": "2009-01-14T14:16:53.713+0000",
+            "id": 5
+        },
+        {
+            "author": "Tushar",
+            "body": "I added a page at http://wiki.apache.org/HttpComponents/ called\nquick start though I think this para could be in the downloads page or a link to a seperate page on the home page would be better\n\nattached is short html for this - can add to it later but this would be invaluable at this time\n\nsee page at http://sel2in.com/pages/prog/java/apache/hc/QuickStart.html",
+            "date": "2009-01-16T17:27:40.512+0000",
+            "id": 6
+        },
+        {
+            "author": "Tushar",
+            "body": "Quick Start for http://hc.apache.org/ add under nav Documentation",
+            "date": "2009-01-16T17:29:53.402+0000",
+            "id": 7
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Tushar,\n\nMany thanks for  this contribution! I'll move the content from Wiki to the main project site by the time HttpClient 4.0 goes final.\n\nOleg",
+            "date": "2009-01-18T13:54:43.598+0000",
+            "id": 8
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Quick start guide ported to the main site.\r\n\r\nOleg",
+            "date": "2009-07-09T19:40:48.703+0000",
+            "id": 9
+        }
+    ],
+    "component": "",
+    "description": "cannot determine the required jar files to compile samples/ own files\n\nexample org.apache.http.examples.client.ClientFormLogin\n\nused\n\nset CLASSPATH=P:\\j\\samples\\httpClient\\examples;j:\\j\\j5\\h;P:\\j\\e\\mysql.jar;P:\\j\\e\\commons-logging-api-1.1.1.jar;P:\\j\\e\\commons-logging-1.1.1.jar;P:\\j\\e\\4\\httpmime-4.0-beta2.jar;P:\\j\\e\\4\\httpclient-4.0-beta2.jar;P:\\j\\e\\4\\h\\e\\4\\httpcore-4.0-beta3.jar;P:\\j\\e\\4\\httpcore-nio-4.0-beta3.jar\n\nbut still needs org.apache.http.*; ... where are these jars? a quick start guide / link to all jars for one version would help\n\n- only known workaround - go back to old version 3.1",
+    "hasPatch": false,
+    "hasScreenshot": false,
+    "id": "HTTPCLIENT-815",
+    "issuetypeClassified": "OTHER",
+    "issuetypeTracker": "IMPROVEMENT",
+    "priority": "Major",
+    "product": "HTTPCLIENT",
+    "project": "HTTPCLIENT",
+    "summary": "Quick Start guide for HttpClient 4.0",
+    "systemSpecification": "any/windows.linuxdos",
+    "version": ""
+}
