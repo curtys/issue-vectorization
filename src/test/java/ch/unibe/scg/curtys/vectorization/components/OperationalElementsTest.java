@@ -93,6 +93,11 @@ public class OperationalElementsTest {
 
 	private String text21 = "4.1.x";
 
+
+	private String text22 = "ctxt.incrementRemoved()";
+
+	private String text23 = "equals (Object obj)";
+
 	private OperationalElements vecElement = new OperationalElements();
 
 	@Test
@@ -118,6 +123,8 @@ public class OperationalElementsTest {
 		assertFalse(vecElement.matchesFilter(text19));
 		assertFalse(vecElement.matchesFilter(text20));
 		assertFalse(vecElement.matchesFilter(text21));
+		assertTrue(vecElement.matchesFilter(text22));
+		assertTrue(vecElement.matchesFilter(text23));
 	}
 
 }

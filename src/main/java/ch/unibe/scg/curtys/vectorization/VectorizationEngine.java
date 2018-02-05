@@ -147,6 +147,11 @@ public class VectorizationEngine {
 		return createVector(issue);
 	}
 
+	public List<Vector> vectorize(List<Issue> issues) {
+		this.issues = issues;
+		return vectorize();
+	}
+
 	public List<Vector> vectorize() {
 		if (!isPreprocessed)
 			prepareIssues();
@@ -236,6 +241,16 @@ public class VectorizationEngine {
 
 		public VectorizationEngineBuilder labelMapper(LabelMapper labelMapper) {
 			this.engine.labelMapper = labelMapper;
+			return this;
+		}
+
+		/**
+		 * Set the VectorizationEngine to use the given components.
+		 * @param components list of {@link VectorComponent}
+		 * @return the VectorizationEngineBuilder
+		 */
+		public VectorizationEngineBuilder useComponents(List<VectorComponent> components) {
+			this.engine.components = components;
 			return this;
 		}
 

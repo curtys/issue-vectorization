@@ -99,6 +99,8 @@ public class CodeSnippetElementsTest {
 			+ "FAILED!: Section 2 of test -\n"
 			+ "FAILED!: Expected value 'f lives!', Actual value 'f was deleted'";
 
+	private String text10 = "Matcher matcher = pattern.matcher(text);";
+
 	private CodeSnippetElements vecElement = new CodeSnippetElements();
 
 	@Test
@@ -112,6 +114,7 @@ public class CodeSnippetElementsTest {
 		assertFalse(vecElement.matchesFilter(text7));
 		assertFalse(vecElement.matchesFilter(text8));
 		assertFalse(vecElement.matchesFilter(text9));
+		assertTrue(vecElement.matchesFilter(text10));
 	}
 
 }
