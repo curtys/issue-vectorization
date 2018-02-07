@@ -1,5 +1,8 @@
 package ch.unibe.scg.curtys.vectorization;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * @author curtys
  */
@@ -27,5 +30,34 @@ public class Vector {
 
 	public String getProject() {
 		return project;
+	}
+
+	@Override
+	public String toString() {
+		return "Vector{" +
+				"elements=" + Arrays.toString(elements) +
+				", project='" + project + '\'' +
+				", id='" + id + '\'' +
+				", label='" + label + '\'' +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Vector)) return false;
+		Vector vector = (Vector) o;
+		return Arrays.equals(elements, vector.elements) &&
+				Objects.equals(project, vector.project) &&
+				Objects.equals(id, vector.id) &&
+				Objects.equals(label, vector.label);
+	}
+
+	@Override
+	public int hashCode() {
+
+		int result = Objects.hash(project, id, label);
+		result = 31 * result + Arrays.hashCode(elements);
+		return result;
 	}
 }

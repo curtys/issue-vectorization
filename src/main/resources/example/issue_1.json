@@ -1,0 +1,41 @@
+{
+    "comments": [
+        {
+            "author": "Michael Becke",
+            "body": "Created an attachment (id=7261)\nPatch 1\n",
+            "date": "2003-07-12T04:35:58.000+0000",
+            "id": 0
+        },
+        {
+            "author": "Michael Becke",
+            "body": "I will apply this patch to HEAD and branch 2.0 if there are no objections.\n\nMike",
+            "date": "2003-07-12T04:36:58.000+0000",
+            "id": 1
+        },
+        {
+            "author": "Oleg Kalnichevski",
+            "body": "Amen.\n\nOleg",
+            "date": "2003-07-12T04:38:28.000+0000",
+            "id": 2
+        },
+        {
+            "author": "Michael Becke",
+            "body": "Applied to 2.0 and HEAD.\n\nMike",
+            "date": "2003-07-12T04:58:47.000+0000",
+            "id": 3
+        }
+    ],
+    "component": "HttpClient (classic)",
+    "description": "URI uses a sun.* class but should not.  Use of this class should be removed.\n\nReported my Mark Wilcox",
+    "hasPatch": true,
+    "hasScreenshot": false,
+    "id": "HTTPCLIENT-244",
+    "issuetypeClassified": "IMPROVEMENT",
+    "issuetypeTracker": "BUG",
+    "priority": "Major",
+    "product": "HTTPCLIENT",
+    "project": "HTTPCLIENT",
+    "summary": "URI uses  sun.security.action.GetPropertyAction",
+    "systemSpecification": "other\nOther",
+    "version": "2.0 Beta 2"
+}
