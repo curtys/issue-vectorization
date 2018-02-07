@@ -54,7 +54,7 @@ List<Issue> issues = JsonIO.readJsons(inPath);
 // Setup preprocessors
 // Set the label to use as ground truth
 ChainPreprocessor preprocessor = 
-        new TrueLabelPreprocessor(Issue.LABEL_SOURCE_TRACKER\cite{Herzig13});
+        new TrueLabelPreprocessor(Issue.LABEL_SOURCE_TRACKER);
 // Remove all issues with non-matching labels
 preprocessor.addNext(new MatchingLabelFilter());
 LabelMapper labelMapper = new SimpleLabels();
